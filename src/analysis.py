@@ -1,8 +1,20 @@
 """
 Core analytical functions for the three research questions.
 
-All functions are pure: they take a preprocessed DataFrame and return
-a DataFrame or dict. No I/O or plotting happens here.
+All functions are pure: they take a DataFrame and return a DataFrame or dict.
+No I/O or plotting happens here.
+
+Two data paths are supported:
+
+  Aggregated path (recommended, free):
+    Input: output of aggregate_frames.sql — one row per month, columns:
+      month, total_articles, frame_innovation_opportunity, frame_risk_safety, ...
+    Functions: monthly_volume_agg, frame_shares_agg, event_study_agg
+
+  Raw path (for spot-checking only):
+    Input: output of extract_genai_gov.sql run through preprocessing.run_pipeline()
+      — one row per article with frame_* columns
+    Functions: monthly_volume, frame_shares, event_study, region_comparison
 """
 
 from __future__ import annotations
@@ -11,26 +23,126 @@ import pandas as pd
 
 from src.dictionaries import FRAME_COLS, MILESTONES
 
-# ---------------------------------------------------------------------------
-# RQ1 — Monthly coverage volume
-# ---------------------------------------------------------------------------
+_AGG_FRAME_COLS = [
+    "frame_innovation_opportunity",
+    "frame_risk_safety",
+    "frame_regulation_governance",
+    "frame_rights_privacy",
+    "frame_economic_competition_labour",
+    "frame_misinformation_integrity",
+]
+
+
+def _parse_month_col(df: pd.DataFrame, col: str = "month") -> pd.Series:
+    """Ensure the month column is Period[M], parsing strings if needed."""
+    s = df[col]
+    if not isinstance(s.iloc[0], pd.Period):
+        s = s.astype(str).apply(lambda x: pd.Period(x, freq="M"))
+    return s
+
+
+def _months_diff(p: pd.Period, pivot: pd.Period) -> int:
+    return (p.year - pivot.year) * 12 + (p.month - pivot.month)
+
+
+# ============================================================================
+# AGGREGATED PATH — use these when working with aggregate_frames.sql output
+# ============================================================================
+
+def load_agg(path: str) -> pd.DataFrame:
+    """Load the CSV produced by aggregate_frames.sql and parse the month column."""
+    df = pd.read_csv(path)
+    df["month"] = _parse_month_col(df)
+    return df.sort_values("month").reset_index(drop=True)
+
+
+def monthly_volume_agg(agg_df: pd.DataFrame) -> pd.Series:
+    """Extract monthly article counts from the aggregated DataFrame.
+
+    Returns a Series indexed by Period[M] — directly used for Figure 1.
+    """
+    return agg_df.set_index("month")["total_articles"].rename("count")
+
+
+def frame_shares_agg(agg_df: pd.DataFrame) -> pd.DataFrame:
+    """Compute monthly frame proportions from the aggregated DataFrame.
+
+    Returns a DataFrame: month index × frame-name columns (proportions).
+    Used for Figure 2.
+    """
+    present = [c for c in _AGG_FRAME_COLS if c in agg_df.columns]
+    if not present:
+        raise ValueError("No frame columns found. Expected output of aggregate_frames.sql.")
+
+    hits = agg_df[present].copy()
+    row_totals = hits.sum(axis=1).replace(0, pd.NA)
+    shares = hits.div(row_totals, axis=0).fillna(0)
+    shares.columns = [c.replace("frame_", "") for c in shares.columns]
+    shares.index = _parse_month_col(agg_df)
+    return shares.sort_index()
+
+
+def event_study_agg(
+    agg_df: pd.DataFrame,
+    milestone_name: str,
+    window: int = 3,
+) -> dict[str, pd.Series | pd.DataFrame]:
+    """Compute volume and frame shares per relative month around a milestone.
+
+    Works on the aggregated monthly DataFrame (output of aggregate_frames.sql).
+    No raw rows needed — all months already summarised.
+
+    Returns
+    -------
+    dict with keys:
+        'volume'  — Series: rel_month → article count
+        'shares'  — DataFrame: rel_month × frame proportions
+        'milestone' — dict with name, date, description
+    """
+    milestone = next((m for m in MILESTONES if m["name"] == milestone_name), None)
+    if milestone is None:
+        raise ValueError(f"Unknown milestone '{milestone_name}'. Check MILESTONES in dictionaries.py.")
+
+    pivot = pd.Period(milestone["date"][:7], freq="M")
+
+    months = _parse_month_col(agg_df)
+    agg_df = agg_df.copy()
+    agg_df["_rel_month"] = months.apply(lambda p: _months_diff(p, pivot))
+
+    subset = agg_df[agg_df["_rel_month"].between(-window, window)].copy()
+    if subset.empty:
+        raise ValueError(f"No data within ±{window} months of '{milestone_name}'.")
+
+    volume = subset.set_index("_rel_month")["total_articles"].rename("count")
+    volume = volume.reindex(range(-window, window + 1), fill_value=0)
+
+    present = [c for c in _AGG_FRAME_COLS if c in subset.columns]
+    hits = subset[present].copy()
+    hits.index = subset["_rel_month"].values
+    row_totals = hits.sum(axis=1).replace(0, pd.NA)
+    shares = hits.div(row_totals, axis=0).fillna(0)
+    shares.columns = [c.replace("frame_", "") for c in shares.columns]
+    shares = shares.reindex(range(-window, window + 1), fill_value=0)
+
+    return {"volume": volume, "shares": shares, "milestone": milestone}
+
+
+# ============================================================================
+# RAW PATH — use these when working with preprocessed per-article data
+# ============================================================================
 
 def monthly_volume(df: pd.DataFrame, month_col: str = "month") -> pd.Series:
-    """Count records per month.
+    """Count records per month from a per-article DataFrame.
 
-    Returns a Series indexed by Period[M], suitable for Figure 1.
+    Returns a Series indexed by Period[M].
     """
     return df.groupby(month_col).size().rename("count").sort_index()
 
 
-# ---------------------------------------------------------------------------
-# RQ2 — Frame distribution over time
-# ---------------------------------------------------------------------------
-
 def frame_shares(df: pd.DataFrame, month_col: str = "month") -> pd.DataFrame:
-    """Compute monthly proportion of dominant-frame assignments.
+    """Compute monthly frame proportions from a per-article DataFrame.
 
-    Returns a DataFrame with months as index and one column per frame (proportions).
+    Returns a DataFrame: month index × frame-name columns (proportions).
     """
     present = [c for c in FRAME_COLS if c in df.columns]
     if not present:
@@ -43,54 +155,21 @@ def frame_shares(df: pd.DataFrame, month_col: str = "month") -> pd.DataFrame:
     return shares.sort_index()
 
 
-# ---------------------------------------------------------------------------
-# RQ3 — Event study around major milestones
-# ---------------------------------------------------------------------------
-
 def event_study(
     df: pd.DataFrame,
     milestone_name: str,
     window: int = 3,
     month_col: str = "month",
-) -> dict[str, pd.DataFrame]:
-    """Compute volume and frame shares for each relative month around a milestone.
-
-    Computes the window directly from the 'month' column so that overlapping
-    milestone windows do not affect results.
-
-    Parameters
-    ----------
-    df:
-        Preprocessed DataFrame with a 'month' (Period[M]) column.
-    milestone_name:
-        The 'name' key from MILESTONES (e.g. 'eu_ai_act').
-    window:
-        Number of months on each side of the event to include.
-
-    Returns
-    -------
-    dict with keys:
-        'volume'  — Series: rel_month → article count
-        'shares'  — DataFrame: rel_month × frame proportions
-    """
+) -> dict[str, pd.Series | pd.DataFrame]:
+    """Compute volume and frame shares per relative month from per-article data."""
     milestone = next((m for m in MILESTONES if m["name"] == milestone_name), None)
     if milestone is None:
-        raise ValueError(f"Unknown milestone: '{milestone_name}'. Check MILESTONES in dictionaries.py.")
+        raise ValueError(f"Unknown milestone '{milestone_name}'. Check MILESTONES in dictionaries.py.")
 
     pivot = pd.Period(milestone["date"][:7], freq="M")
 
-    def _months_diff(p: "pd.Period") -> int:
-        return (p.year - pivot.year) * 12 + (p.month - pivot.month)
-
-    rel_months: list[int] = []
-    for period in df[month_col]:
-        try:
-            rel_months.append(_months_diff(period))
-        except Exception:
-            rel_months.append(999)
-
     df = df.copy()
-    df["_rel_month"] = rel_months
+    df["_rel_month"] = df[month_col].apply(lambda p: _months_diff(p, pivot))
     subset = df[df["_rel_month"].between(-window, window)].copy()
 
     if subset.empty:
@@ -106,22 +185,15 @@ def event_study(
     shares.columns = [c.replace("frame_", "") for c in shares.columns]
     shares = shares.reindex(range(-window, window + 1), fill_value=0)
 
-    return {"volume": volume, "shares": shares}
+    return {"volume": volume, "shares": shares, "milestone": milestone}
 
-
-# ---------------------------------------------------------------------------
-# Optional — Regional comparison (Figure 4)
-# ---------------------------------------------------------------------------
 
 def region_comparison(
     df: pd.DataFrame,
     region_col: str = "region",
     regions: list[str] | None = None,
 ) -> pd.DataFrame:
-    """Compute frame shares grouped by region.
-
-    Returns a DataFrame with regions as index and frame proportions as columns.
-    """
+    """Compute frame shares grouped by region from per-article data."""
     regions = regions or ["US", "EU", "UK"]
     subset = df[df[region_col].isin(regions)]
     present = [c for c in FRAME_COLS if c in subset.columns]
