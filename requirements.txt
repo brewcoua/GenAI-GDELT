@@ -1,0 +1,10 @@
+google-cloud-bigquery[bqstorage,pandas]>=3.41.0
+pandas>=2.0
+numpy>=1.26
+matplotlib>=3.8
+seaborn>=0.13
+python-dateutil>=2.9
+db-dtypes>=1.2
+tqdm>=4.66
+jupyter
+ipykernel

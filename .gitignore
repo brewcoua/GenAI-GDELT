@@ -160,6 +160,10 @@ venv.bak/
 # Spyder project settings
 .spyderproject
 .spyproject
+.serena
+.cursor
+.claude
+PLAN.md
 
 # Rope project settings
 .ropeproject
