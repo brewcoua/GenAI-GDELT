@@ -6,5 +6,6 @@ seaborn>=0.13
 python-dateutil>=2.9
 db-dtypes>=1.2
 tqdm>=4.66
+gdown>=5.1
 jupyter
 ipykernel
