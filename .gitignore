@@ -167,6 +167,7 @@ PLAN.md
 
 # Heavy data (can be downloaded from drive)
 data/raw/
+data/interim/
 
 # Rope project settings
 .ropeproject
