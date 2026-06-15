@@ -9,12 +9,32 @@ API docs: https://blog.gdeltproject.org/gdelt-doc-2-0-api-debuts/
 
 from __future__ import annotations
 
+import time
+
 import pandas as pd
 import requests
 
 from src.dictionaries import GENAI_LEXICON, GOV_LEXICON
 
 _BASE_URL = "https://api.gdeltproject.org/api/v2/doc/doc"
+_MAX_RETRIES = 5
+_BACKOFF_BASE = 10  # seconds; doubled each retry (10, 20, 40, 80, 160)
+
+
+def _get_with_retry(params: dict) -> requests.Response:
+    """GET the DOC API with exponential backoff on 429."""
+    delay = _BACKOFF_BASE
+    for attempt in range(_MAX_RETRIES):
+        resp = requests.get(_BASE_URL, params=params, timeout=60)
+        if resp.status_code != 429:
+            resp.raise_for_status()
+            return resp
+        if attempt < _MAX_RETRIES - 1:
+            print(f"Rate limited (429); retrying in {delay}s …")
+            time.sleep(delay)
+            delay *= 2
+    resp.raise_for_status()  # raise on final attempt
+    return resp
 
 # Core terms from each lexicon that work well with the DOC API query syntax.
 # The full lexicons are too long for a URL; these cover the most salient signals.
@@ -84,8 +104,7 @@ def fetch_timeline_vol(
         "startdatetime": start,
         "enddatetime": end,
     }
-    resp = requests.get(_BASE_URL, params=params, timeout=60)
-    resp.raise_for_status()
+    resp = _get_with_retry(params)
 
     data = resp.json()
     # Response shape: {"timeline": [{"series": "...", "data": [{...}, ...]}]}
@@ -122,8 +141,7 @@ def fetch_timeline_tone(
         "startdatetime": start,
         "enddatetime": end,
     }
-    resp = requests.get(_BASE_URL, params=params, timeout=60)
-    resp.raise_for_status()
+    resp = _get_with_retry(params)
 
     data = resp.json()
     series = data.get("timeline", [])
