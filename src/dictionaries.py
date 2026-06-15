@@ -185,6 +185,11 @@ MILESTONES: list[dict] = [
         "date": "2024-05-21",
         "description": "Seoul AI Safety Summit — major international follow-up",
     },
+    {
+        "name": "un_ai_resolution",
+        "date": "2025-08-28",
+        "description": "UN General Assembly adopts landmark AI governance resolution establishing a scientific panel and global dialogue",
+    },
 ]
 
 # ---------------------------------------------------------------------------

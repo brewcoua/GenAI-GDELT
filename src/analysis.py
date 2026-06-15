@@ -202,3 +202,63 @@ def region_comparison(
     shares = hits.div(row_totals, axis=0).fillna(0)
     shares.columns = [c.replace("frame_", "") for c in shares.columns]
     return shares
+
+
+# ============================================================================
+# ADDITIONAL ANALYSES — supplementary statistics and plots
+# ============================================================================
+
+def frame_counts_agg(agg_df: pd.DataFrame) -> pd.DataFrame:
+    """Return absolute monthly keyword hit counts per frame from the aggregated DataFrame.
+
+    Returns a DataFrame indexed by Period[M] with one column per frame (short names).
+    """
+    present = [c for c in _AGG_FRAME_COLS if c in agg_df.columns]
+    counts = agg_df[present].copy()
+    counts.columns = [c.replace("frame_", "") for c in counts.columns]
+    counts.index = _parse_month_col(agg_df)
+    return counts.sort_index()
+
+
+def tone_over_time(df: pd.DataFrame, month_col: str = "month") -> pd.Series:
+    """Return mean tone score per month from a per-article DataFrame.
+
+    Requires 'tone' column (output of parse_tone).
+    Returns a Series indexed by Period[M].
+    """
+    if "tone" not in df.columns:
+        raise ValueError("'tone' column not found. Run parse_tone first.")
+    return df.groupby(month_col)["tone"].mean().sort_index()
+
+
+def frame_coverage_rate(df: pd.DataFrame) -> dict:
+    """Return frame coverage statistics from a per-article DataFrame.
+
+    Returns dict with keys: total, zero_frame_pct, any_frame_pct, multi_frame_pct.
+    """
+    present = [c for c in FRAME_COLS if c in df.columns]
+    if not present:
+        raise ValueError("No frame columns found. Run assign_frame_flags first.")
+    total = len(df)
+    any_hit = df[present].sum(axis=1) > 0
+    multi_hit = df[present].gt(0).sum(axis=1) > 1
+    return {
+        "total": total,
+        "zero_frame_pct": float((~any_hit).mean()),
+        "any_frame_pct": float(any_hit.mean()),
+        "multi_frame_pct": float(multi_hit.mean()),
+    }
+
+
+def source_concentration(df: pd.DataFrame, top_n: int = 20) -> tuple[pd.Series, float]:
+    """Return (top_sources Series, HHI float) from a per-article DataFrame.
+
+    HHI (Herfindahl-Hirschman Index) ranges from 0 (equal distribution) to 1 (monopoly).
+    Requires 'SourceCommonName' column.
+    """
+    if "SourceCommonName" not in df.columns:
+        raise ValueError("'SourceCommonName' column not found in DataFrame.")
+    counts = df["SourceCommonName"].value_counts()
+    shares = counts / counts.sum()
+    hhi = float((shares ** 2).sum())
+    return counts.head(top_n), hhi
