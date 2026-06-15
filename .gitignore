@@ -165,6 +165,9 @@ venv.bak/
 .claude
 PLAN.md
 
+# Heavy data (can be downloaded from drive)
+data/raw/
+
 # Rope project settings
 .ropeproject
 
