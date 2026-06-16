@@ -62,6 +62,64 @@ def drop_dupes(df: pd.DataFrame, key_col: str = "DocumentIdentifier") -> pd.Data
 
 
 # ---------------------------------------------------------------------------
+# Headline fallback from URL (ported from Alt_impl/GDELT_Web_Sci.ipynb cell 6)
+#
+# A large share of GKG records have an empty/NaN Quotations field, which
+# starves keyword/frame matching for those rows (flagged in
+# 02_frame_labeling.ipynb's spot-check). Most article URLs encode a readable
+# headline slug, so this derives one and uses it to backfill Quotations only
+# where it's missing.
+# ---------------------------------------------------------------------------
+
+_URL_EXT_PATTERN = re.compile(r"\.(html?|cms|ece|aspx?|php|stm)$")
+_URL_ID_BLOCK_PATTERN = re.compile(r"[_\-]\d{4,}")
+_URL_BARE_NUM_PATTERN = re.compile(r"\b\d{4,}\b")
+_URL_SEP_PATTERN = re.compile(r"[\-_]+")
+_URL_PUNCT_PATTERN = re.compile(r"[^a-z0-9 ]+")
+_URL_WS_PATTERN = re.compile(r"\s+")
+
+
+def _url_to_headline(url: str) -> str:
+    """Derive a readable headline-like string from an article URL's slug."""
+    url = str(url).lower()
+    url = re.sub(r"^https?://", "", url)
+    url = url.split("?", 1)[0]
+    # drop the domain (everything up to and including the first '/')
+    parts = url.split("/", 1)
+    path = parts[1] if len(parts) > 1 else parts[0]
+    # the longest path segment is almost always the headline slug
+    segments = [s for s in path.split("/") if s]
+    if not segments:
+        return ""
+    slug = max(segments, key=len)
+    slug = _URL_EXT_PATTERN.sub("", slug)
+    slug = _URL_ID_BLOCK_PATTERN.sub(" ", slug)  # -123031700145, _98722849
+    slug = _URL_BARE_NUM_PATTERN.sub(" ", slug)  # bare long numbers
+    slug = _URL_SEP_PATTERN.sub(" ", slug)
+    slug = _URL_PUNCT_PATTERN.sub(" ", slug)
+    return _URL_WS_PATTERN.sub(" ", slug).strip()
+
+
+def extract_headline_from_url(
+    df: pd.DataFrame,
+    url_col: str = "DocumentIdentifier",
+    quotations_col: str = "Quotations",
+) -> pd.DataFrame:
+    """Backfill empty/NaN Quotations with a headline derived from the URL slug.
+
+    Adds a 'headline_text' column (always populated) and overwrites
+    quotations_col only for rows where it was empty, so frame matching has
+    text to work with for rows that previously had none.
+    """
+    df = df.copy()
+    df["headline_text"] = df[url_col].apply(_url_to_headline)
+    if quotations_col in df.columns:
+        empty = df[quotations_col].isna() | (df[quotations_col].astype(str).str.strip() == "")
+        df.loc[empty, quotations_col] = df.loc[empty, "headline_text"]
+    return df
+
+
+# ---------------------------------------------------------------------------
 # V2Tone parsing
 # ---------------------------------------------------------------------------
 
@@ -199,6 +257,7 @@ def run_pipeline(df: pd.DataFrame) -> pd.DataFrame:
     df = parse_dates(df)
     df = lower_cols(df)
     df = drop_dupes(df)
+    df = extract_headline_from_url(df)
     df = parse_tone(df)
     df = parse_country(df)
     df = assign_frame_flags(df)

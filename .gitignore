@@ -164,6 +164,9 @@ venv.bak/
 .cursor
 .claude
 PLAN.md
+MERGE_PLAN.md
+*.pdf
+*.bib
 
 # Heavy data (can be downloaded from drive)
 data/raw/
