@@ -197,11 +197,125 @@ def region_comparison(
     regions = regions or ["US", "EU", "UK"]
     subset = df[df[region_col].isin(regions)]
     present = [c for c in FRAME_COLS if c in subset.columns]
-    hits = subset.groupby(region_col)[present].sum()
-    row_totals = hits.sum(axis=1).replace(0, pd.NA)
-    shares = hits.div(row_totals, axis=0).fillna(0)
+    hits = subset.groupby(region_col, observed=True)[present].sum()
+    row_totals = hits.sum(axis=1)
+    shares = hits.div(row_totals.where(row_totals != 0), axis=0).fillna(0.0)
     shares.columns = [c.replace("frame_", "") for c in shares.columns]
     return shares
+
+
+# ============================================================================
+# REGIONAL FRAMING GAP — does the US, EU and UK frame GenAI governance
+# differently, and does the gap move around the (EU-heavy) milestones?
+# ============================================================================
+
+def _bucket_period(months: pd.Series, freq: str) -> pd.Series:
+    """Map a Series of monthly Periods (or strings) onto coarser Periods.
+
+    freq is a pandas offset alias: 'M' (month), 'Q' (quarter), 'Y'/'A' (year).
+    Quarterly is the sensible default for regional splits, since per-region
+    monthly counts get thin and noisy once the corpus is divided three ways.
+    """
+    if len(months) and not isinstance(months.iloc[0], pd.Period):
+        months = months.astype(str).apply(lambda x: pd.Period(x, freq="M"))
+    if freq.upper().startswith("M"):
+        return months
+    return months.apply(lambda p: p.asfreq(freq))
+
+
+def region_frame_shares_over_time(
+    df: pd.DataFrame,
+    regions: list[str] | None = None,
+    freq: str = "Q",
+    month_col: str = "month",
+    region_col: str = "region",
+) -> pd.DataFrame:
+    """Frame shares per region per time bucket, in long (tidy) form.
+
+    Within each (region, period) cell, shares sum to 1 across the six frames
+    — the same normalisation used by frame_shares()/frame_shares_agg(), so the
+    regional series are directly comparable to the pooled Figure 2 series.
+
+    Returns
+    -------
+    DataFrame with columns: region, period (Period), frame (short name), share.
+    """
+    regions = regions or ["US", "EU", "UK"]
+    present = [c for c in FRAME_COLS if c in df.columns]
+    if not present:
+        raise ValueError("No frame columns found. Run assign_frame_flags first.")
+
+    subset = df[df[region_col].isin(regions)].copy()
+    if subset.empty:
+        raise ValueError(f"No rows for regions {regions} in column '{region_col}'.")
+    subset["_period"] = _bucket_period(subset[month_col], freq)
+
+    grouped = subset.groupby([region_col, "_period"], observed=True)[present].sum()
+    totals = grouped.sum(axis=1)
+    shares = grouped.div(totals.where(totals != 0), axis=0).fillna(0.0)
+    shares.columns = [c.replace("frame_", "") for c in shares.columns]
+
+    long = (
+        shares.reset_index()
+        .melt(id_vars=[region_col, "_period"], var_name="frame", value_name="share")
+        .rename(columns={region_col: "region", "_period": "period"})
+    )
+    return long.sort_values(["frame", "region", "period"]).reset_index(drop=True)
+
+
+def framing_gap(
+    df: pd.DataFrame,
+    frame: str,
+    region_a: str = "US",
+    region_b: str = "EU",
+    freq: str = "Q",
+    month_col: str = "month",
+    region_col: str = "region",
+) -> pd.Series:
+    """Time series of (region_a share − region_b share) for one frame.
+
+    Positive values mean region_a leans into the frame more than region_b in
+    that period (e.g. a positive 'regulation_governance' US−EU gap would mean
+    US coverage was *more* regulation-framed than EU coverage).
+
+    Returns a Series indexed by Period, named '<region_a>_minus_<region_b>'.
+    """
+    panel = region_frame_shares_over_time(
+        df, regions=[region_a, region_b], freq=freq,
+        month_col=month_col, region_col=region_col,
+    )
+    sub = panel[panel["frame"] == frame]
+    if sub.empty:
+        raise ValueError(
+            f"Unknown frame '{frame}'. Expected one of {sorted(panel['frame'].unique())}."
+        )
+    wide = sub.pivot(index="period", columns="region", values="share")
+    for r in (region_a, region_b):
+        if r not in wide.columns:
+            wide[r] = 0.0
+    return (wide[region_a] - wide[region_b]).rename(f"{region_a}_minus_{region_b}").sort_index()
+
+
+def regional_gap_summary(
+    df: pd.DataFrame,
+    regions: list[str] | None = None,
+    region_col: str = "region",
+) -> pd.DataFrame:
+    """Pooled (whole-corpus) frame share per region plus pairwise gaps.
+
+    Returns a DataFrame indexed by frame, with one column per region holding
+    its overall frame share, and one 'gap_<a>_<b>' column per region pair
+    holding the share difference (region_a − region_b).
+    """
+    regions = regions or ["US", "EU", "UK"]
+    shares = region_comparison(df, region_col=region_col, regions=regions).T
+    out = shares.copy()
+    for i in range(len(regions)):
+        for j in range(i + 1, len(regions)):
+            a, b = regions[i], regions[j]
+            if a in shares.columns and b in shares.columns:
+                out[f"gap_{a}_{b}"] = shares[a] - shares[b]
+    return out
 
 
 # ============================================================================
