@@ -1,7 +1,16 @@
 """
 Single source of truth for all keyword lexicons, frame dictionaries, and milestone events.
-All SQL queries and preprocessing functions derive their term lists from here.
+All SQL queries (generated dynamically by src/build_query.py — see that module's
+docstring; queries/*.sql are regenerated artifacts, never hand-edited) and preprocessing
+functions derive their term lists from here.
 """
+
+# ---------------------------------------------------------------------------
+# Study date range (BigQuery _PARTITIONTIME filter bounds for every query)
+# ---------------------------------------------------------------------------
+
+STUDY_START_DATE = "2022-11-01"
+STUDY_END_DATE = "2026-06-30"
 
 # ---------------------------------------------------------------------------
 # Corpus definition lexicons
@@ -37,6 +46,21 @@ GENAI_LEXICON: list[str] = [
     "llama",
 ]
 
+# Subset of GENAI_LEXICON checked against Quotations (free text), as opposed to
+# the full list above which is checked against AllNames (GDELT's NER-extracted
+# entity field). Brand/product names are precise and cheap to match in AllNames;
+# Quotations is a much longer field, so only broad contextual phrases are
+# checked there to control scan cost and avoid false hits from short/ambiguous
+# product names (e.g. "Bard", "Grok") appearing as ordinary words inside quotes.
+GENAI_LEXICON_CONTEXTUAL: list[str] = [
+    "chatgpt",
+    "generative ai",
+    "large language model",
+    "foundation model",
+    "frontier model",
+    "anthropic",
+]
+
 GOV_LEXICON: list[str] = [
     "governance",
     "regulation",
@@ -46,7 +70,12 @@ GOV_LEXICON: list[str] = [
     "oversight",
     "law",
     "legislation",
-    "act",
+    # "act" deliberately excluded: as a bare substring it matches "fact",
+    # "react", "impact", "contact", "interact", "transaction", "exactly",
+    # "enact", "actor", "actually" etc. — the same "don't put substring-unsafe
+    # bare words in a dict that drives substring matching" rule FRAME_DICTS
+    # documents below. "ai act" / "eu ai act" are kept since they're specific
+    # enough not to collide.
     "ai act",
     "eu ai act",
     "framework",
