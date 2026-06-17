@@ -32,11 +32,16 @@ Usage
 
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 import pandas as pd
 
-_EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
+_EMBEDDING_MODEL = "sentence-transformers/LaBSE"
 _NLI_MODEL = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+
+_MODEL_CACHE: dict[str, Any] = {}
+_CENTROID_CACHE: dict[tuple, dict[str, np.ndarray]] = {}
 
 
 def _get_device() -> str:
@@ -54,24 +59,24 @@ def _get_device() -> str:
 # (the NLI model handles 100 languages; the premise is the article text).
 FRAME_HYPOTHESES: dict[str, str] = {
     "innovation_opportunity": (
-        "This article discusses AI innovation, new capabilities, or beneficial applications."
+        "This article discusses AI innovation, new capabilities, or beneficial applications of AI."
     ),
     "risk_safety": (
-        "This article discusses AI safety risks, harms, or dangerous misuse of AI systems."
+        "This article discusses AI safety risks, harms, accidents, or dangerous misuse of AI systems."
     ),
     "regulation_governance": (
-        "This article discusses AI regulation, law, governance frameworks, or policy."
+        "This article discusses AI regulation, legislation, governance frameworks, or public policy for AI."
     ),
     "rights_privacy": (
-        "This article discusses AI and privacy, data protection, bias, or human rights."
+        "This article discusses AI and privacy, personal data protection, algorithmic bias, or civil rights."
     ),
     "economic_competition_labour": (
-        "This article discusses the economic impact of AI, job displacement, "
-        "market competition, or the geopolitical AI race."
+        "This article discusses AI and jobs, automation replacing workers, economic inequality, "
+        "or countries competing in AI development."
     ),
     "misinformation_integrity": (
-        "This article discusses AI-generated misinformation, deepfakes, "
-        "synthetic media, or threats to information integrity."
+        "This article discusses AI-generated fake news, deepfakes, synthetic media, "
+        "or AI used to spread disinformation and deceive people."
     ),
 }
 
@@ -81,23 +86,30 @@ FRAME_HYPOTHESES: dict[str, str] = {
 # ---------------------------------------------------------------------------
 
 def _load_sentence_transformer(model_name: str = _EMBEDDING_MODEL):
-    try:
-        from sentence_transformers import SentenceTransformer
-    except ImportError as e:
-        raise ImportError(
-            "sentence-transformers is required for embedding scoring. "
-            "Install with: pip install -r requirements-ml.txt"
-        ) from e
-    return SentenceTransformer(model_name, device=_get_device())
+    if model_name not in _MODEL_CACHE:
+        try:
+            from sentence_transformers import SentenceTransformer
+        except ImportError as e:
+            raise ImportError(
+                "sentence-transformers is required for embedding scoring. "
+                "Install with: pip install -r requirements-ml.txt"
+            ) from e
+        _MODEL_CACHE[model_name] = SentenceTransformer(model_name, device=_get_device())
+    return _MODEL_CACHE[model_name]
 
 
-def _compute_frame_centroids(frame_dicts: dict[str, list[str]], model) -> dict[str, np.ndarray]:
+def _compute_frame_centroids(
+    frame_dicts: dict[str, list[str]], model, model_name: str
+) -> dict[str, np.ndarray]:
     """Encode each frame's keyword list and return the mean embedding (centroid)."""
-    centroids = {}
-    for name, keywords in frame_dicts.items():
-        embs = model.encode(keywords, show_progress_bar=False, batch_size=64)
-        centroids[name] = embs.mean(axis=0)
-    return centroids
+    key = (model_name, tuple(sorted(frame_dicts.keys())))
+    if key not in _CENTROID_CACHE:
+        centroids = {}
+        for name, keywords in frame_dicts.items():
+            embs = model.encode(keywords, show_progress_bar=False, batch_size=64)
+            centroids[name] = embs.mean(axis=0)
+        _CENTROID_CACHE[key] = centroids
+    return _CENTROID_CACHE[key]
 
 
 def assign_frame_scores_embedding(
@@ -115,7 +127,7 @@ def assign_frame_scores_embedding(
     each frame acts as a semantic axis defined by its keyword centroid.
     """
     model = _load_sentence_transformer(model_name)
-    centroids = _compute_frame_centroids(frame_dicts, model)
+    centroids = _compute_frame_centroids(frame_dicts, model, model_name)
 
     article_embs = model.encode(texts, show_progress_bar=True, batch_size=batch_size)
 
@@ -149,7 +161,7 @@ def _load_nli_pipeline(model_name: str = _NLI_MODEL):
         "zero-shot-classification",
         model=model_name,
         multi_label=True,
-        device="auto",  # Accelerate picks CUDA/ROCm/CPU automatically
+        device=_get_device(),
     )
 
 
@@ -176,16 +188,35 @@ def assign_frame_scores_nli(
     label_list = list(hypotheses.keys())
     hypothesis_list = list(hypotheses.values())
 
+    # The pipeline rejects empty strings; replace them with a neutral placeholder.
+    texts = [t if t and t.strip() else "." for t in texts]
+
+    # Wrap in a Dataset so the pipeline uses GPU-efficient DataLoader batching
+    # instead of sequential per-item processing.
+    try:
+        from torch.utils.data import Dataset as _TorchDataset
+
+        class _TextDataset(_TorchDataset):
+            def __init__(self, data: list[str]) -> None:
+                self.data = data
+            def __len__(self) -> int:
+                return len(self.data)
+            def __getitem__(self, i: int) -> str:
+                return self.data[i]
+
+        iterable = classifier(
+            _TextDataset(texts),
+            candidate_labels=hypothesis_list,
+            multi_label=True,
+            batch_size=batch_size,
+        )
+    except ImportError:
+        # Fallback when torch is not installed (shouldn't happen if NLI is running).
+        iterable = classifier(texts, hypothesis_list, multi_label=True)
+
     rows = []
-    for i in range(0, len(texts), batch_size):
-        batch = texts[i : i + batch_size]
-        results = classifier(batch, hypothesis_list, multi_label=True)
-        if isinstance(results, dict):
-            results = [results]
-        for res in results:
-            # results["labels"] is in descending score order; re-align to
-            # the original hypothesis order
-            score_map = dict(zip(res["labels"], res["scores"]))
-            rows.append([score_map.get(h, 0.0) for h in hypothesis_list])
+    for res in iterable:
+        score_map = dict(zip(res["labels"], res["scores"]))
+        rows.append([score_map.get(h, 0.0) for h in hypothesis_list])
 
     return pd.DataFrame(rows, columns=label_list)
