@@ -194,7 +194,13 @@ def assign_frame_flags(df: pd.DataFrame, cols: list[str] | None = None) -> pd.Da
     )
     for frame_name, keywords in FRAME_DICTS.items():
         col = f"frame_{frame_name}"
-        pattern = "|".join(re.escape(kw) for kw in keywords)
+        # Single-word terms get \b anchors to prevent substring false positives
+        # (e.g. "lies" matching "relies", "harm" matching "pharmacy").
+        # Multi-word phrases are left as plain substrings.
+        pattern = "|".join(
+            (r"\b" + re.escape(kw) + r"\b") if " " not in kw else re.escape(kw)
+            for kw in keywords
+        )
         df[col] = combined.str.count(pattern)
     return df
 
@@ -209,7 +215,19 @@ def assign_dominant_frame(df: pd.DataFrame) -> pd.DataFrame:
     if not present_cols:
         df["dominant_frame"] = None
         return df
-    df["dominant_frame"] = df[present_cols].idxmax(axis=1).str.replace("frame_", "", regex=False)
+    # Normalise hit counts by dictionary size before comparing so that frames
+    # with more keywords (e.g. economic_competition_labour ~225 vs.
+    # rights_privacy ~168) don't win systematically just from having more terms.
+    frame_sizes = pd.Series({
+        col: len(FRAME_DICTS[col.replace("frame_", "")])
+        for col in present_cols
+    })
+    df["dominant_frame"] = (
+        df[present_cols]
+        .div(frame_sizes)
+        .idxmax(axis=1)
+        .str.replace("frame_", "", regex=False)
+    )
     # articles with zero hits on all frames get None
     df.loc[df[present_cols].max(axis=1) == 0, "dominant_frame"] = None
     return df

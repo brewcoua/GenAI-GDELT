@@ -65,9 +65,11 @@ def monthly_volume_agg(agg_df: pd.DataFrame) -> pd.Series:
 
 
 def frame_shares_agg(agg_df: pd.DataFrame) -> pd.DataFrame:
-    """Compute monthly frame proportions from the aggregated DataFrame.
+    """Compute monthly frame prevalence rates from the aggregated DataFrame.
 
-    Returns a DataFrame: month index × frame-name columns (proportions).
+    Each value is the fraction of that month's articles that matched the frame
+    (frames are multi-label, so column values can sum to more than 1).
+    Returns a DataFrame: month index × frame-name columns (rates 0–1+).
     Used for Figure 2.
     """
     present = [c for c in _AGG_FRAME_COLS if c in agg_df.columns]
@@ -75,8 +77,11 @@ def frame_shares_agg(agg_df: pd.DataFrame) -> pd.DataFrame:
         raise ValueError("No frame columns found. Expected output of aggregate_frames.sql.")
 
     hits = agg_df[present].copy()
-    row_totals = hits.sum(axis=1).replace(0, pd.NA)
-    shares = hits.div(row_totals, axis=0).fillna(0)
+    # Divide by total_articles so each value is "fraction of articles mentioning
+    # this frame" rather than "fraction of total keyword hits" (which is biased
+    # toward frames with more keywords and double-counts multi-label articles).
+    row_totals = agg_df["total_articles"].replace(0, pd.NA)
+    shares = hits.div(row_totals.values, axis=0).fillna(0)
     shares.columns = [c.replace("frame_", "") for c in shares.columns]
     shares.index = _parse_month_col(agg_df)
     return shares.sort_index()
@@ -119,7 +124,8 @@ def event_study_agg(
     present = [c for c in _AGG_FRAME_COLS if c in subset.columns]
     hits = subset[present].copy()
     hits.index = subset["_rel_month"].values
-    row_totals = hits.sum(axis=1).replace(0, pd.NA)
+    row_totals = subset["total_articles"].replace(0, pd.NA)
+    row_totals.index = subset["_rel_month"].values
     shares = hits.div(row_totals, axis=0).fillna(0)
     shares.columns = [c.replace("frame_", "") for c in shares.columns]
     shares = shares.reindex(range(-window, window + 1), fill_value=0)
@@ -140,17 +146,19 @@ def monthly_volume(df: pd.DataFrame, month_col: str = "month") -> pd.Series:
 
 
 def frame_shares(df: pd.DataFrame, month_col: str = "month") -> pd.DataFrame:
-    """Compute monthly frame proportions from a per-article DataFrame.
+    """Compute monthly frame prevalence rates from a per-article DataFrame.
 
-    Returns a DataFrame: month index × frame-name columns (proportions).
+    Each value is the fraction of that month's articles that matched the frame
+    (frames are multi-label, so column values can sum to more than 1).
+    Returns a DataFrame: month index × frame-name columns (rates 0–1+).
     """
     present = [c for c in FRAME_COLS if c in df.columns]
     if not present:
         raise ValueError("No frame columns found. Run assign_frame_flags first.")
 
+    monthly_counts = df.groupby(month_col).size().rename("count")
     monthly_hits = df.groupby(month_col)[present].sum()
-    row_totals = monthly_hits.sum(axis=1).replace(0, pd.NA)
-    shares = monthly_hits.div(row_totals, axis=0).fillna(0)
+    shares = monthly_hits.div(monthly_counts, axis=0).fillna(0)
     shares.columns = [c.replace("frame_", "") for c in shares.columns]
     return shares.sort_index()
 
@@ -180,8 +188,8 @@ def event_study(
 
     present = [c for c in FRAME_COLS if c in subset.columns]
     monthly_hits = subset.groupby("_rel_month")[present].sum()
-    row_totals = monthly_hits.sum(axis=1).replace(0, pd.NA)
-    shares = monthly_hits.div(row_totals, axis=0).fillna(0)
+    monthly_counts = subset.groupby("_rel_month").size()
+    shares = monthly_hits.div(monthly_counts, axis=0).fillna(0)
     shares.columns = [c.replace("frame_", "") for c in shares.columns]
     shares = shares.reindex(range(-window, window + 1), fill_value=0)
 

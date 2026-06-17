@@ -61,8 +61,8 @@ innovation_opportunity:
     - streamline
     - augment
     - assistant
-    - help you
     - coding
+    # "help you" removed: too generic as a whole phrase even with word boundaries
     # scientific advance
     - scientific
     - discovery
@@ -750,7 +750,8 @@ economic_competition_labour:
     - competition
     - market power
     - monopoly
-    - race
+    # bare "race" removed: fires on "human race", "race relations" even as a whole
+    # word; geopolitical sense covered by arms race/ai race/race for/race to below
     - competitiveness
     - investment
     # jobs / labor

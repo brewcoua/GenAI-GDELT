@@ -11,10 +11,13 @@ genai_lexicon:
   - frontier model
   - gpt-4
   - gpt4
+  - gpt-4o
+  - gpt4o
   - gpt-5
   - gpt5
   - claude
   - anthropic
+  - openai
   - gemini
   - bard
   - dall-e
@@ -26,6 +29,12 @@ genai_lexicon:
   - copilot
   - grok
   - llama
+  - deepseek
+  - sora
+  - mistral ai
+  - ai agent
+  - agentic ai
+  - reasoning model
 
 genai_lexicon_contextual:
   # Descriptive phrases matched against Quotations (free text).
@@ -39,45 +48,72 @@ genai_lexicon_contextual:
     - foundation model
     - frontier model
     - anthropic
+    - openai
+    - gpt-4o
+    - deepseek
+    - ai agent
+    - agentic ai
+    - reasoning model
   fr:
     - ia générative
     - intelligence artificielle générative
     - grand modèle de langage
     - modèle de langage
     - modèle de fondation
+    - agent ia
+    - ia agentique
+    - modèle de raisonnement
   de:
     - generative ki
     - generative künstliche intelligenz
     - großes sprachmodell
     - sprachmodell
     - basismodell
+    - ki-agent
+    - agentische ki
+    - reasoning-modell
   es:
     - ia generativa
     - inteligencia artificial generativa
     - modelo de lenguaje grande
     - modelo de lenguaje
     - modelo fundacional
+    - agente ia
+    - ia agéntica
+    - modelo de razonamiento
   it:
     - ia generativa
     - intelligenza artificiale generativa
     - modello linguistico
     - modello di linguaggio
     - modello fondazionale
+    - agente ia
+    - ia agentiva
+    - modello di ragionamento
   nl:
     - generatieve ai
     - generatieve kunstmatige intelligentie
     - groot taalmodel
     - taalmodel
     - basismodel
+    - ai-agent
+    - agentische ai
+    - redeneermodel
   pl:
     - generatywna ai
     - generatywna sztuczna inteligencja
     - duży model językowy
     - model językowy
     - model podstawowy
+    - agent ai
+    - agentyczna ai
+    - model rozumowania
   pt:
     - ia generativa
     - inteligência artificial generativa
     - grande modelo de linguagem
     - modelo de linguagem
     - modelo fundacional
+    - agente ia
+    - ia agêntica
+    - modelo de raciocínio
