@@ -167,6 +167,7 @@ PLAN.md
 MERGE_PLAN.md
 *.pdf
 *.bib
+*.tex
 
 # Heavy data (can be downloaded from drive)
 data/raw/

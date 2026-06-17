@@ -38,6 +38,17 @@ import pandas as pd
 _EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
 _NLI_MODEL = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
 
+
+def _get_device() -> str:
+    """Return 'cuda' if a GPU is available (covers NVIDIA CUDA and AMD ROCm), else 'cpu'."""
+    try:
+        import torch
+        if torch.cuda.is_available():
+            return "cuda"
+    except ImportError:
+        pass
+    return "cpu"
+
 # Natural-language hypotheses for the six governance frames.
 # Used by the NLI scorer; phrased to be unambiguous and language-neutral
 # (the NLI model handles 100 languages; the premise is the article text).
@@ -77,7 +88,7 @@ def _load_sentence_transformer(model_name: str = _EMBEDDING_MODEL):
             "sentence-transformers is required for embedding scoring. "
             "Install with: pip install -r requirements-ml.txt"
         ) from e
-    return SentenceTransformer(model_name)
+    return SentenceTransformer(model_name, device=_get_device())
 
 
 def _compute_frame_centroids(frame_dicts: dict[str, list[str]], model) -> dict[str, np.ndarray]:
@@ -138,6 +149,7 @@ def _load_nli_pipeline(model_name: str = _NLI_MODEL):
         "zero-shot-classification",
         model=model_name,
         multi_label=True,
+        device="auto",  # Accelerate picks CUDA/ROCm/CPU automatically
     )
 
 
