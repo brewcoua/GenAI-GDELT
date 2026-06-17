@@ -1,11 +1,10 @@
 """
 Generate the three BigQuery queries (extract_genai_gov, aggregate_frames,
-event_windows) entirely from the lexicons in dictionaries.py.
+event_windows) entirely from the lexicons in data/lexicons/*.yaml via
+src/dictionaries.py.
 
-queries/*.sql are build artifacts, not source — regenerate them with
-`python -m src.build_query --write` after editing dictionaries.py and never
-hand-edit them directly, or they will silently drift from what the notebooks
-actually execute (this happened once already; see MERGE_PLAN.md).
+queries/*.sql are build artifacts — regenerate with
+`python -m src.build_query --write` after editing any YAML lexicon file.
 
 Usage:
     python -m src.build_query            # print GenAI/governance filter fragments
@@ -177,11 +176,9 @@ def build_extract_query(start: str = STUDY_START_DATE, end: str = STUDY_END_DATE
 def build_aggregate_query(start: str = STUDY_START_DATE, end: str = STUDY_END_DATE) -> str:
     """Per-month frame-count aggregate query, equivalent to aggregate_frames.sql.
 
-    Each frame checks the *same* full FRAME_DICTS pattern against both
-    AllNames and Quotations — this drops the previous hand-written file's
-    separate, smaller "higher-precision" AllNames subset per frame, since
-    that subset wasn't mechanically derivable from FRAME_DICTS and keeping it
-    would mean maintaining two term lists per frame instead of one.
+    Each frame checks the full FRAME_DICTS pattern against both AllNames and
+    Quotations so that the single term list in frames.yaml is the sole source
+    of truth for both SQL and Python-side frame matching.
     """
     genai = build_genai_filter("regexp", indent=4)
     gov = build_gov_filter("regexp", indent=4)
@@ -283,26 +280,25 @@ def write_all_queries(out_dir: str | Path = "queries") -> None:
         "extract_genai_gov.sql": (
             "-- extract_genai_gov.sql\n"
             "-- Main corpus extraction: generative-AI governance articles.\n"
-            "-- Strategy: GenAI signal (AllNames/Quotations) AND governance signal\n"
-            "-- (Quotations keyword OR V2Themes theme tag OR DocumentIdentifier\n"
-            "-- url slug). See MERGE_PLAN.md for the full rationale.\n"
+            "-- GenAI signal (AllNames/Quotations) AND governance signal\n"
+            "-- (Quotations keyword OR V2Themes theme tag OR DocumentIdentifier url slug).\n"
             + _GENERATED_HEADER
             + "\n"
             + build_extract_query()
         ),
         "aggregate_frames.sql": (
             "-- aggregate_frames.sql\n"
-            "-- Per-month frame counts (binary presence, COUNTIF), GenAI/governance\n"
-            "-- filters identical to extract_genai_gov.sql. See MERGE_PLAN.md.\n"
+            "-- Per-month frame counts (COUNTIF), GenAI/governance filters\n"
+            "-- identical to extract_genai_gov.sql.\n"
             + _GENERATED_HEADER
             + "\n"
             + build_aggregate_query()
         ),
         "event_windows.sql": (
             "-- event_windows.sql\n"
-            "-- Focused extraction limited to +/-3-month windows around each\n"
-            "-- milestone event. Windows computed via pandas.Period arithmetic in\n"
-            "-- src/build_query.py:milestone_windows — see MERGE_PLAN.md.\n"
+            "-- Focused extraction limited to ±3-month windows around each\n"
+            "-- milestone event. Windows computed via pandas.Period arithmetic\n"
+            "-- in src/build_query.py:milestone_windows.\n"
             + _GENERATED_HEADER
             + "\n"
             + build_event_windows_query()

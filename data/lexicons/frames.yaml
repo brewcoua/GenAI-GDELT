@@ -1,0 +1,1059 @@
+# Frame keyword dictionaries.
+# Structure: frame_name → iso-639-1 code → [terms].
+# The loader in src/dictionaries.py flattens each frame's language lists into
+# a single list, so downstream code sees dict[str, list[str]] as before.
+#
+# Terms are matched case-insensitively via substring (str.count with regex
+# alternation). Avoid bare words short enough to produce false positives
+# through incidental substrings.
+
+innovation_opportunity:
+  en:
+    - innovation
+    - innovative
+    - breakthrough
+    - opportunity
+    - promise
+    - benefit
+    - potential
+    - growth
+    - boost
+    - productivity
+    - efficiency
+    - transform
+    - progress
+    - competitiveness
+    # capability
+    - powerful
+    - smarter
+    - human level
+    - milestone
+    - cutting edge
+    - state of the art
+    - most capable
+    - outperforms
+    - aces
+    - beats humans
+    - superhuman
+    - reasoning
+    # product launch
+    - launches
+    - launch
+    - unveils
+    - unveiled
+    - releases
+    - released
+    - rolls out
+    - introduces
+    - introducing
+    - debuts
+    - new model
+    - new feature
+    - new tool
+    - announces
+    - announced
+    - rollout
+    - upgrade
+    # productivity
+    - automate
+    - workflow
+    - save time
+    - streamline
+    - augment
+    - assistant
+    - help you
+    - coding
+    # scientific advance
+    - scientific
+    - discovery
+    - study finds
+    - medical
+    - diagnosis
+    - drug discovery
+    - healthcare
+    - cancer
+    - scientists
+  fr:
+    - opportunité
+    - percée
+    - progrès
+    - productivité
+    - lancement
+    - efficacité
+    - révolutionnaire
+    - découverte
+    - transforme
+    - transformation
+    - scientifique
+    - diagnostic
+    - soins de santé
+  de:
+    - durchbruch
+    - fortschritt
+    - produktivität
+    - effizienz
+    - lanciert
+    - enthüllt
+    - revolutionär
+    - entdeckung
+    - wissenschaftlich
+    - gesundheitsversorgung
+  es:
+    - innovación
+    - oportunidad
+    - avance
+    - progreso
+    - productividad
+    - lanzamiento
+    - eficiencia
+    - revolucionario
+    - descubrimiento
+    - científico
+    - diagnóstico
+    - atención médica
+  it:
+    - innovazione
+    - opportunità
+    - progresso
+    - produttività
+    - lancio
+    - efficienza
+    - rivoluzionario
+    - scoperta
+    - scientifico
+    - diagnosi
+    - assistenza sanitaria
+  nl:
+    - innovatie
+    - kans
+    - doorbraak
+    - vooruitgang
+    - productiviteit
+    - lancering
+    - efficiëntie
+    - revolutionair
+    - ontdekking
+    - wetenschappelijk
+    - diagnose
+    - gezondheidszorg
+  pl:
+    - innowacja
+    - szansa
+    - przełom
+    - postęp
+    - wydajność
+    - premiera
+    - efektywność
+    - rewolucyjny
+    - odkrycie
+    - naukowy
+    - diagnoza
+    - opieka zdrowotna
+  pt:
+    - inovação
+    - oportunidade
+    - avanço
+    - progresso
+    - produtividade
+    - lançamento
+    - eficiência
+    - revolucionário
+    - descoberta
+    - científico
+    - diagnóstico
+    - cuidados de saúde
+  ro:
+    - inovație
+    - oportunitate
+    - progres
+    - productivitate
+    - lansare
+    - eficiență
+    - revoluționar
+    - descoperire
+    - științific
+    - diagnostic
+    - îngrijire medicală
+
+risk_safety:
+  en:
+    - risk
+    - risks
+    - harm
+    - harms
+    - danger
+    - threat
+    - safety
+    - unsafe
+    - misuse
+    - abuse
+    - catastrophic
+    - existential
+    - crisis
+    # existential / safety
+    - ai safety
+    - extinction
+    - out of control
+    - rogue
+    - doomsday
+    - warns
+    - warning
+    - fears
+    - scary
+    - alarming
+    - alarm
+    # security / cyber
+    - cyber
+    - cybersecurity
+    - hack
+    - hacking
+    - hackers
+    - malware
+    - phishing
+    - exploit
+    - breach
+    - weapon
+    - weapons
+    - drone
+    - drones
+    - national security
+    - attack
+    - scam
+    - scams
+    # reliability / hallucination
+    - hallucination
+    - hallucinate
+    - hallucinations
+    - inaccurate
+    - fabricated
+    - unreliable
+    - flawed
+    - made up
+    - makes up
+    - lies
+    - 'false'
+    - wrong
+    - accuracy
+    - errors
+    - mistakes
+    - confidently wrong
+    # harm to vulnerable groups
+    - teen
+    - teens
+    - children
+    - kids
+    - child
+    - mental health
+    - suicide
+    - self harm
+    - vulnerable
+    - addiction
+    - students
+  fr:
+    - risque
+    - sécurité
+    - menace
+    - préjudice
+    - nuisible
+    - dangereux
+    - cyberattaque
+    - cybermenace
+    - piratage
+    - arme
+    - hallucination
+    - inexact
+    - trompeur
+    - avertissement
+    - enfants
+    - adolescents
+    - santé mentale
+  de:
+    - risiko
+    - sicherheit
+    - gefahr
+    - bedrohung
+    - schaden
+    - schädlich
+    - cyberangriff
+    - hacken
+    - waffe
+    - halluzination
+    - ungenau
+    - unzuverlässig
+    - warnung
+    - kinder
+    - jugendliche
+    - psychische gesundheit
+  es:
+    - riesgo
+    - seguridad
+    - peligro
+    - amenaza
+    - daño
+    - dañino
+    - ciberataque
+    - ciberamenaza
+    - piratería
+    - arma
+    - alucinación
+    - impreciso
+    - poco fiable
+    - advertencia
+    - niños
+    - adolescentes
+    - salud mental
+  it:
+    - rischio
+    - sicurezza
+    - pericolo
+    - minaccia
+    - danno
+    - dannoso
+    - cyberattacco
+    - attacco informatico
+    - hacking
+    - arma
+    - allucinazione
+    - inaccurato
+    - inaffidabile
+    - avvertimento
+    - bambini
+    - adolescenti
+    - salute mentale
+  nl:
+    - risico
+    - veiligheid
+    - gevaar
+    - bedreiging
+    - schade
+    - schadelijk
+    - cyberaanval
+    - hacken
+    - wapen
+    - hallucinatie
+    - onnauwkeurig
+    - onbetrouwbaar
+    - waarschuwing
+    - kinderen
+    - jongeren
+    - geestelijke gezondheid
+  pl:
+    - ryzyko
+    - bezpieczeństwo
+    - zagrożenie
+    - szkoda
+    - szkodliwy
+    - cyberatak
+    - cyberzagrożenie
+    - hakerstwo
+    - broń
+    - halucynacja
+    - niedokładny
+    - ostrzeżenie
+    - dzieci
+    - młodzież
+    - zdrowie psychiczne
+  pt:
+    - risco
+    - segurança
+    - perigo
+    - ameaça
+    - dano
+    - prejudicial
+    - ciberataque
+    - ciberameaça
+    - hacking
+    - arma
+    - alucinação
+    - impreciso
+    - pouco fiável
+    - aviso
+    - crianças
+    - adolescentes
+    - saúde mental
+  ro:
+    - risc
+    - siguranță
+    - pericol
+    - amenințare
+    - daună
+    - dăunător
+    - atac cibernetic
+    - amenințare cibernetică
+    - hacking
+    - armă
+    - halucinație
+    - inexact
+    - nesigur
+    - avertisment
+    - copii
+    - adolescenți
+    - sănătate mintală
+
+regulation_governance:
+  en:
+    - regulation
+    - regulatory
+    - regulator
+    - law
+    - legislation
+    - policy
+    - rules
+    - oversight
+    - compliance
+    - enforcement
+    - framework
+    - standard
+    - audit
+    # law / legislation
+    - governance
+    - regulate
+    - regulating
+    - ai act
+    - guidelines
+    - code of practice
+    - laws
+    # bans / restrictions
+    - ban
+    - banned
+    - bans
+    - restrict
+    - restricted
+    - restrictions
+    - prohibit
+    - moratorium
+    - pause
+    - blocks
+    - blocked
+    - blocking
+    # government oversight
+    - regulators
+    - ftc
+    - congress
+    - senate
+    - white house
+    - watchdog
+    - probe
+    - investigation
+    - investigating
+    - antitrust
+    - lawmakers
+    - brussels
+    - government
+    # litigation / legal
+    - lawsuit
+    - lawsuits
+    - sued
+    - sues
+    - suing
+    - court
+    - legal
+    - settlement
+    - settle
+    - liability
+    - trial
+    - judge
+    - litigation
+  fr:
+    - réglementation
+    - réglementaire
+    - régulateur
+    - gouvernance
+    - politique
+    - loi
+    - législation
+    - conformité
+    - mise en application
+    - surveillance
+    - cadre réglementaire
+    - lignes directrices
+    - interdiction
+    - interdit
+    - tribunal
+    - procès
+    - poursuite judiciaire
+    - gouvernement
+    - régulateurs
+    - enquête
+  de:
+    - regulierung
+    - regulatorisch
+    - aufsichtsbehörde
+    - rechtsrahmen
+    - gesetz
+    - gesetzgebung
+    - durchsetzung
+    - aufsicht
+    - verbot
+    - gericht
+    - klage
+    - regulatoren
+    - untersuchung
+    - regierung
+  es:
+    - regulación
+    - regulatorio
+    - regulador
+    - gobernanza
+    - política
+    - ley
+    - legislación
+    - cumplimiento
+    - aplicación
+    - supervisión
+    - prohibición
+    - tribunal
+    - demanda
+    - reguladores
+    - investigación
+    - gobierno
+  it:
+    - regolamentazione
+    - normativo
+    - autorità di regolazione
+    - legge
+    - legislazione
+    - conformità
+    - supervisione
+    - divieto
+    - tribunale
+    - causa legale
+    - regolatori
+    - indagine
+    - governo
+  nl:
+    - regulering
+    - regelgeving
+    - toezichthouder
+    - beleid
+    - wet
+    - wetgeving
+    - naleving
+    - handhaving
+    - toezicht
+    - verbod
+    - rechtbank
+    - rechtszaak
+    - toezichthouders
+    - onderzoek
+    - overheid
+  pl:
+    - regulacja
+    - regulacyjny
+    - organ regulacyjny
+    - zarządzanie
+    - polityka
+    - prawo
+    - ustawodawstwo
+    - zgodność
+    - egzekwowanie
+    - nadzór
+    - zakaz
+    - sąd
+    - sprawa sądowa
+    - regulatorzy
+    - dochodzenie
+    - rząd
+  pt:
+    - regulamentação
+    - regulatório
+    - regulador
+    - governança
+    - política
+    - lei
+    - legislação
+    - conformidade
+    - aplicação
+    - supervisão
+    - proibição
+    - tribunal
+    - processo judicial
+    - reguladores
+    - investigação
+    - governo
+  ro:
+    - reglementare
+    - regulatorie
+    - autoritate de reglementare
+    - guvernanță
+    - politică
+    - lege
+    - legislație
+    - conformitate
+    - supraveghere
+    - interdicție
+    - tribunal
+    - dosar judiciar
+    - autorități de reglementare
+    - anchetă
+    - guvern
+
+rights_privacy:
+  en:
+    - privacy
+    - data protection
+    - personal data
+    - human rights
+    - fundamental rights
+    - civil liberties
+    - surveillance
+    - bias
+    - fairness
+    - transparency
+    - consent
+    # data / privacy
+    - gdpr
+    - data collection
+    - data breach
+    - scraping
+    - scraped
+    - your data
+    - user data
+    # copyright / IP
+    - copyright
+    - intellectual property
+    - plagiarism
+    - infringement
+    - authors
+    - artists
+    - training data
+    - stolen
+    - pirated
+    - copyrighted
+    - creators
+    # surveillance
+    - spying
+    - facial recognition
+    - tracking
+    - monitor
+    - monitoring
+    - spy
+    # bias / discrimination
+    - biased
+    - discrimination
+    - racist
+    - racism
+    - sexist
+    - discriminate
+    - stereotypes
+    - prejudice
+  fr:
+    - vie privée
+    - protection des données
+    - droits humains
+    - "droits de l'homme"
+    - libertés civiles
+    - discrimination
+    - données personnelles
+    - préjugé
+    - biais
+    - reconnaissance faciale
+    - collecte de données
+    - violation de données
+  de:
+    - datenschutz
+    - menschenrechte
+    - bürgerrechte
+    - überwachung
+    - diskriminierung
+    - personenbezogene daten
+    - vorurteil
+    - verzerrung
+    - gesichtserkennung
+    - datenerfassung
+    - datenschutzverletzung
+  es:
+    - privacidad
+    - protección de datos
+    - derechos humanos
+    - libertades civiles
+    - vigilancia
+    - discriminación
+    - datos personales
+    - sesgo
+    - prejuicio
+    - reconocimiento facial
+    - recopilación de datos
+    - violación de datos
+  it:
+    - riservatezza
+    - protezione dei dati
+    - diritti umani
+    - libertà civili
+    - sorveglianza
+    - discriminazione
+    - dati personali
+    - pregiudizio
+    - distorsione
+    - riconoscimento facciale
+    - raccolta di dati
+    - violazione dei dati
+  nl:
+    - gegevensbescherming
+    - mensenrechten
+    - burgerrechten
+    - discriminatie
+    - persoonsgegevens
+    - vooroordeel
+    - vertekening
+    - gezichtsherkenning
+    - gegevensverzameling
+    - datalek
+  pl:
+    - prywatność
+    - ochrona danych
+    - prawa człowieka
+    - prawa obywatelskie
+    - inwigilacja
+    - dyskryminacja
+    - dane osobowe
+    - uprzedzenie
+    - stronniczość
+    - rozpoznawanie twarzy
+    - gromadzenie danych
+    - naruszenie danych
+  pt:
+    - privacidade
+    - proteção de dados
+    - direitos humanos
+    - liberdades civis
+    - vigilância
+    - discriminação
+    - dados pessoais
+    - preconceito
+    - viés
+    - reconhecimento facial
+    - coleta de dados
+    - violação de dados
+  ro:
+    - confidențialitate
+    - protecția datelor
+    - drepturile omului
+    - libertăți civile
+    - supraveghere
+    - discriminare
+    - date personale
+    - prejudecată
+    - părtinire
+    - recunoaștere facială
+    - colectare de date
+    - încălcarea datelor
+
+economic_competition_labour:
+  en:
+    - jobs
+    - workers
+    - automation
+    - labour market
+    - labor market
+    - workforce
+    - competition
+    - market power
+    - monopoly
+    - race
+    - competitiveness
+    - investment
+    # jobs / labor
+    - job
+    - layoffs
+    - unemployment
+    - replace
+    - replacing
+    - replaced
+    - labor
+    - hiring
+    - career
+    - employees
+    - white collar
+    # market / investment
+    - invest
+    - funding
+    - valuation
+    - billion
+    - trillion
+    - stocks
+    - revenue
+    - profit
+    - ipo
+    - startup
+    - raises
+    - raised
+    - deal
+    - funding round
+    - market value
+    # geopolitical race
+    - china
+    - chinese
+    - arms race
+    - ai race
+    - sovereignty
+    - dominance
+    - us china
+    - beijing
+    - race for
+    # corporate competition
+    - rival
+    - rivals
+    - compete
+    - competing
+    - competitor
+    - competitors
+    - takes on
+    - versus
+    - battle
+    - race to
+    - challenger
+    - outpace
+    - showdown
+    - catch up
+  fr:
+    - emplois
+    - travailleurs
+    - automatisation
+    - marché du travail
+    - licenciements
+    - investissement
+    - concurrence
+    - monopole
+    - milliard
+    - chômage
+    - main-d'œuvre
+    - financement
+    - valorisation
+    - startup
+    - entreprise
+  de:
+    - arbeitsplätze
+    - arbeitnehmer
+    - automatisierung
+    - arbeitsmarkt
+    - entlassungen
+    - investition
+    - wettbewerb
+    - monopol
+    - milliarden
+    - arbeitslosigkeit
+    - arbeitskräfte
+    - finanzierung
+    - bewertung
+    - startup
+    - unternehmen
+  es:
+    - empleos
+    - trabajadores
+    - automatización
+    - mercado laboral
+    - despidos
+    - inversión
+    - competencia
+    - monopolio
+    - millones
+    - desempleo
+    - fuerza laboral
+    - financiación
+    - valoración
+    - startup
+    - empresa
+  it:
+    - posti di lavoro
+    - lavoratori
+    - automatizzazione
+    - mercato del lavoro
+    - licenziamenti
+    - investimento
+    - concorrenza
+    - monopolio
+    - miliardi
+    - disoccupazione
+    - forza lavoro
+    - finanziamento
+    - valutazione
+    - startup
+    - azienda
+  nl:
+    - banen
+    - werknemers
+    - automatisering
+    - arbeidsmarkt
+    - ontslagen
+    - investering
+    - concurrentie
+    - monopolie
+    - miljard
+    - werkloosheid
+    - beroepsbevolking
+    - financiering
+    - waardering
+    - startup
+    - bedrijf
+  pl:
+    - miejsca pracy
+    - pracownicy
+    - automatyzacja
+    - rynek pracy
+    - zwolnienia
+    - inwestycja
+    - konkurencja
+    - monopol
+    - miliard
+    - bezrobocie
+    - siła robocza
+    - finansowanie
+    - wycena
+    - startup
+    - przedsiębiorstwo
+  pt:
+    - empregos
+    - trabalhadores
+    - automação
+    - mercado de trabalho
+    - demissões
+    - investimento
+    - concorrência
+    - monopólio
+    - bilhões
+    - desemprego
+    - força de trabalho
+    - financiamento
+    - avaliação
+    - startup
+    - empresa
+  ro:
+    - locuri de muncă
+    - lucrători
+    - automatizare
+    - piața muncii
+    - concedieri
+    - investiție
+    - concurență
+    - monopol
+    - miliarde
+    - șomaj
+    - forță de muncă
+    - finanțare
+    - evaluare
+    - startup
+    - companie
+
+misinformation_integrity:
+  en:
+    - misinformation
+    - disinformation
+    - deepfake
+    - fake news
+    - synthetic media
+    - manipulation
+    - propaganda
+    - scam
+    - impersonation
+    - information integrity
+    # deepfakes
+    - deepfakes
+    - cloned voice
+    - face swap
+    - fake video
+    - fake image
+    - fake photos
+    # fabricated content
+    - false information
+    - fabricated content
+    - fake content
+    # propaganda / manipulation
+    - manipulate
+    - election
+    - elections
+    - fraud
+    - impersonate
+    - voters
+    # trust / authenticity
+    - authenticity
+    - credibility
+    - watermark
+    - detect ai
+    - ai detector
+  fr:
+    - désinformation
+    - infox
+    - propagande
+    - fausse information
+    - contenu falsifié
+    - manipulation
+    - escroquerie
+    - élection
+    - élections
+    - fraude
+    - authenticité
+    - crédibilité
+  de:
+    - desinformation
+    - falschinformationen
+    - falschmeldung
+    - gefälschte inhalte
+    - betrug
+    - wahl
+    - wahlen
+    - authentizität
+    - glaubwürdigkeit
+  es:
+    - desinformación
+    - noticias falsas
+    - información falsa
+    - contenido falso
+    - estafa
+    - elección
+    - elecciones
+    - fraude
+    - autenticidad
+    - credibilidad
+  it:
+    - disinformazione
+    - notizie false
+    - informazioni false
+    - contenuto falso
+    - truffa
+    - elezione
+    - elezioni
+    - frode
+    - autenticità
+    - credibilità
+  nl:
+    - desinformatie
+    - nepnieuws
+    - valse informatie
+    - nep inhoud
+    - oplichting
+    - verkiezing
+    - verkiezingen
+    - fraude
+    - authenticiteit
+    - geloofwaardigheid
+  pl:
+    - dezinformacja
+    - fałszywe informacje
+    - fałszywa treść
+    - oszustwo
+    - wybory
+    - wybory powszechne
+    - autentyczność
+    - wiarygodność
+  pt:
+    - desinformação
+    - notícias falsas
+    - informação falsa
+    - conteúdo falso
+    - fraude
+    - eleição
+    - eleições
+    - autenticidade
+    - credibilidade
+  ro:
+    - dezinformare
+    - știri false
+    - informații false
+    - conținut fals
+    - propagandă
+    - escrocherie
+    - alegeri
+    - fraudă
+    - autenticitate
+    - credibilitate

@@ -1,0 +1,32 @@
+# Key AI governance events used as anchors for the event-study analysis.
+# Windows computed as ±3 months from each date via pandas.Period arithmetic.
+# Note: bletchley_summit and eu_ai_act_agreement are ~1 month apart; their
+# ±3-month windows overlap. This is a known limitation documented in the paper.
+
+- name: chatgpt_launch
+  date: "2022-11-30"
+  description: "ChatGPT public launch — starting anchor of study period"
+
+- name: pause_ai_letter
+  date: "2023-03-22"
+  description: "Future of Life Institute 'Pause Giant AI Experiments' open letter"
+
+- name: bletchley_summit
+  date: "2023-11-01"
+  description: "UK AI Safety Summit at Bletchley Park"
+
+- name: eu_ai_act_agreement
+  date: "2023-12-08"
+  description: "EU AI Act political agreement reached in trilogue negotiations"
+
+- name: seoul_summit
+  date: "2024-05-21"
+  description: "Seoul AI Safety Summit"
+
+- name: eu_ai_act_in_force
+  date: "2024-08-01"
+  description: "EU AI Act enters into force"
+
+- name: gpai_obligations
+  date: "2025-08-02"
+  description: "EU AI Act general-purpose AI model obligations become applicable"

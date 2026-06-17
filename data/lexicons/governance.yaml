@@ -1,0 +1,325 @@
+gov_lexicon:
+  # Governance / regulatory signal keywords matched against Quotations (free text).
+  # Keyed by ISO 639-1 language code.
+  #
+  # Design decisions carried across all language sections:
+  #   - "act" is excluded from "en": as a bare substring it matches "fact",
+  #     "react", "impact", "contact", "interact", "exactly", "enact", "actor" etc.
+  #     "ai act" and "eu ai act" are safe and kept because they are specific enough.
+  #   - "deepfake" stays in "en" only — it is a universal loanword used verbatim
+  #     across all EU languages without translation.
+  #   - German "datenschutz" covers both "privacy" and "data protection"; listed once.
+  #   - "compliance" and "governance" are international business/legal terms used
+  #     verbatim in German, Dutch, and Italian press; they remain in those sections.
+  en:
+    - governance
+    - regulation
+    - regulatory
+    - regulator
+    - policy
+    - oversight
+    - law
+    - legislation
+    - ai act
+    - eu ai act
+    - framework
+    - guidelines
+    - compliance
+    - enforcement
+    - accountability
+    - liability
+    - responsible ai
+    - trustworthy ai
+    - ethical ai
+    - risk management
+    - guardrails
+    - safeguards
+    - ai safety
+    - human rights
+    - privacy
+    - data protection
+    - misinformation
+    - deepfake
+  fr:
+    - gouvernance
+    - réglementation
+    - régulation
+    - réglementaire
+    - régulateur
+    - politique
+    - surveillance
+    - loi
+    - législation
+    - cadre réglementaire
+    - lignes directrices
+    - conformité
+    - mise en application
+    - reddition de comptes
+    - responsabilité civile
+    - ia responsable
+    - ia digne de confiance
+    - ia éthique
+    - gestion des risques
+    - garde-fous
+    - garanties
+    - "sécurité de l'ia"
+    - droits humains
+    - "droits de l'homme"
+    - vie privée
+    - protection des données
+    - désinformation
+  de:
+    - governance
+    - regulierung
+    - regulatorisch
+    - aufsichtsbehörde
+    - richtlinie
+    - aufsicht
+    - gesetz
+    - gesetzgebung
+    - rechtsrahmen
+    - leitlinien
+    - compliance
+    - durchsetzung
+    - rechenschaftspflicht
+    - haftung
+    - verantwortungsvolle ki
+    - vertrauenswürdige ki
+    - ethische ki
+    - risikomanagement
+    - leitplanken
+    - schutzmaßnahmen
+    - ki-sicherheit
+    - menschenrechte
+    - datenschutz
+    - desinformation
+  es:
+    - gobernanza
+    - regulación
+    - regulatorio
+    - regulador
+    - política
+    - supervisión
+    - ley
+    - legislación
+    - marco regulatorio
+    - directrices
+    - cumplimiento
+    - aplicación
+    - rendición de cuentas
+    - responsabilidad
+    - ia responsable
+    - ia confiable
+    - ia ética
+    - gestión de riesgos
+    - salvaguardas
+    - salvaguardias
+    - seguridad de la ia
+    - derechos humanos
+    - privacidad
+    - protección de datos
+    - desinformación
+  it:
+    - governance
+    - regolamentazione
+    - normativo
+    - regolatorio
+    - autorità di regolazione
+    - politica
+    - supervisione
+    - legge
+    - legislazione
+    - quadro normativo
+    - linee guida
+    - conformità
+    - applicazione
+    - responsabilità
+    - ia responsabile
+    - ia affidabile
+    - ia etica
+    - gestione del rischio
+    - salvaguardie
+    - garanzie
+    - "sicurezza dell'ia"
+    - diritti umani
+    - riservatezza
+    - protezione dei dati
+    - disinformazione
+  nl:
+    - governance
+    - regulering
+    - regelgeving
+    - regelgevend
+    - toezichthouder
+    - beleid
+    - toezicht
+    - wet
+    - wetgeving
+    - kader
+    - richtlijnen
+    - naleving
+    - handhaving
+    - verantwoording
+    - aansprakelijkheid
+    - verantwoorde ai
+    - betrouwbare ai
+    - ethische ai
+    - risicobeheer
+    - vangrails
+    - waarborgen
+    - ai-veiligheid
+    - mensenrechten
+    - privacy
+    - gegevensbescherming
+    - desinformatie
+  pl:
+    - zarządzanie
+    - regulacja
+    - regulacyjny
+    - organ regulacyjny
+    - polityka
+    - nadzór
+    - prawo
+    - ustawodawstwo
+    - ramy prawne
+    - wytyczne
+    - zgodność
+    - egzekwowanie
+    - rozliczalność
+    - odpowiedzialność
+    - odpowiedzialna ai
+    - godna zaufania ai
+    - etyczna ai
+    - zarządzanie ryzykiem
+    - zabezpieczenia
+    - środki ochrony
+    - bezpieczeństwo ai
+    - prawa człowieka
+    - prywatność
+    - ochrona danych
+    - dezinformacja
+  pt:
+    - governança
+    - regulamentação
+    - regulação
+    - regulatório
+    - regulador
+    - política
+    - supervisão
+    - fiscalização
+    - lei
+    - legislação
+    - quadro regulatório
+    - diretrizes
+    - conformidade
+    - aplicação
+    - responsabilização
+    - prestação de contas
+    - ia responsável
+    - ia confiável
+    - ia ética
+    - gestão de riscos
+    - salvaguardas
+    - garantias
+    - segurança da ia
+    - direitos humanos
+    - privacidade
+    - proteção de dados
+    - desinformação
+  ro:
+    - guvernanță
+    - reglementare
+    - regulatorie
+    - autoritate de reglementare
+    - politică
+    - supraveghere
+    - lege
+    - legislație
+    - cadru normativ
+    - orientări
+    - conformitate
+    - aplicare
+    - răspundere
+    - ia responsabilă
+    - siguranța ia
+    - gestionarea riscurilor
+    - garanții
+    - drepturile omului
+    - confidențialitate
+    - viața privată
+    - protecția datelor
+    - dezinformare
+
+gov_theme_tags:
+  # GDELT V2Themes codes signalling a regulatory/legal/ethics/rights dimension.
+  # Matched via SQL LIKE '%code%', so a shorter prefix catches more-specific codes
+  # (e.g. "HUMAN_RIGHTS" catches WB_2203_HUMAN_RIGHTS, SELF_IDENTIFIED_HUMAN_RIGHTS,
+  # WB_2507_HUMAN_RIGHTS_ABUSES_AND_VIOLATIONS; "WB_282_ICT_POLICY_REGULATORY_FRAMEWORK"
+  # catches WB_282_ICT_POLICY_REGULATORY_FRAMEWORK_AND_INSTITUTIONS).
+  # All codes verified by LIKE-substring hit counts on the raw corpus.
+
+  # Policy / regulatory / legal framework
+  - EPU_CATS_REGULATION                            # 223K hits
+  - EPU_POLICY_LAW                                 # 463K hits
+  - EPU_POLICY_REGULATION                          # 49K hits
+  - LEGISLATION                                    # 511K hits
+  - WB_831_GOVERNANCE                              # 373K hits
+  - WB_845_LEGAL_AND_REGULATORY_FRAMEWORK          # 103K hits
+  - WB_279_ICT_STRATEGY_POLICY_AND_REGULATION      # 779 hits
+  - WB_282_ICT_POLICY_REGULATORY_FRAMEWORK         # 634 hits (prefix-matches _AND_INSTITUTIONS)
+
+  # Ethics / accountability / rights
+  - WB_2089_ETHICS_AND_CODES_OF_CONDUCT            # 36K hits
+  - WB_838_PUBLIC_ACCOUNTABILITY_MECHANISMS        # 34K hits
+  - WB_851_INTELLECTUAL_PROPERTY_RIGHTS            # 46K hits
+  - HUMAN_RIGHTS                                   # 76K hits (prefix-matches multiple codes)
+  - UNGP_POLITICAL_FREEDOMS                        # 52K hits
+  - UNGP_FREEDOM_FROM_DISCRIMINATION               # 45K hits
+  - UNGP_CRIME_VIOLENCE                            # 155K hits
+
+  # Digital / ICT governance
+  - WB_133_INFORMATION_AND_COMMUNICATION_TECHNOLOGIES  # 284K hits
+  - WB_678_DIGITAL_GOVERNMENT                     # 272K hits
+  - WB_670_ICT_SECURITY                            # 33K hits
+
+  # Security / safety
+  - EPU_CATS_NATIONAL_SECURITY                     # 166K hits
+  - CYBER_ATTACK                                   # 28K hits
+
+  # Legal proceedings / enforcement
+  - WB_840_JUSTICE                                 # 257K hits
+  - WB_1014_CRIMINAL_JUSTICE                       # 165K hits
+  - TRIAL                                          # 196K hits
+
+  # Privacy / data protection
+  - WB_2369_DATA_PRIVACY                           # 3K hits
+
+  # Democratic / electoral context
+  - ELECTION                                       # 121K hits
+  - ELECTION_FRAUD                                 # 4K hits
+
+  # Governance actors
+  - GENERAL_GOVERNMENT                             # 313K hits
+  - TAX_FNCACT_REGULATOR                           # 14K hits
+
+gov_url_slugs:
+  # URL-path substrings matched against DocumentIdentifier.
+  # All items start with "-" to anchor to slug boundaries and reduce false positives.
+  - '-regulat'
+  - '-policy-'
+  - '-legislat'
+  - '-governance-'
+  - '-safety-'
+  - '-security-'
+  - '-threat'
+  - '-warns-'
+  - '-warning-'
+  - '-ethic'
+  - '-privacy-'
+  - '-rights-'
+  - '-oversight-'
+  - '-copyright'
+  - '-lawsuit'
+  - '-banned-'
+  - '-ban-'
+  - '-ai-act'

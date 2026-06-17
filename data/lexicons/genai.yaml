@@ -1,0 +1,83 @@
+genai_lexicon:
+  # Proper nouns and product names — matched against AllNames (GDELT NER).
+  # Language-invariant: these terms appear unchanged in non-English press.
+  - chatgpt
+  - generative ai
+  - genai
+  - gen ai
+  - large language model
+  - llm
+  - foundation model
+  - frontier model
+  - gpt-4
+  - gpt4
+  - gpt-5
+  - gpt5
+  - claude
+  - anthropic
+  - gemini
+  - bard
+  - dall-e
+  - dalle
+  - stable diffusion
+  - midjourney
+  - text-to-image
+  - image generator
+  - copilot
+  - grok
+  - llama
+
+genai_lexicon_contextual:
+  # Descriptive phrases matched against Quotations (free text).
+  # Keyed by ISO 639-1 language code. Shorter and more contextual than
+  # genai_lexicon: brand names like "Bard" or "Grok" are omitted here
+  # because they appear as ordinary words in quoted prose.
+  en:
+    - chatgpt
+    - generative ai
+    - large language model
+    - foundation model
+    - frontier model
+    - anthropic
+  fr:
+    - ia générative
+    - intelligence artificielle générative
+    - grand modèle de langage
+    - modèle de langage
+    - modèle de fondation
+  de:
+    - generative ki
+    - generative künstliche intelligenz
+    - großes sprachmodell
+    - sprachmodell
+    - basismodell
+  es:
+    - ia generativa
+    - inteligencia artificial generativa
+    - modelo de lenguaje grande
+    - modelo de lenguaje
+    - modelo fundacional
+  it:
+    - ia generativa
+    - intelligenza artificiale generativa
+    - modello linguistico
+    - modello di linguaggio
+    - modello fondazionale
+  nl:
+    - generatieve ai
+    - generatieve kunstmatige intelligentie
+    - groot taalmodel
+    - taalmodel
+    - basismodel
+  pl:
+    - generatywna ai
+    - generatywna sztuczna inteligencja
+    - duży model językowy
+    - model językowy
+    - model podstawowy
+  pt:
+    - ia generativa
+    - inteligência artificial generativa
+    - grande modelo de linguagem
+    - modelo de linguagem
+    - modelo fundacional

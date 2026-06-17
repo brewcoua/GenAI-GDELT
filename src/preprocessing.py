@@ -62,13 +62,12 @@ def drop_dupes(df: pd.DataFrame, key_col: str = "DocumentIdentifier") -> pd.Data
 
 
 # ---------------------------------------------------------------------------
-# Headline fallback from URL (ported from Alt_impl/GDELT_Web_Sci.ipynb cell 6)
+# Headline fallback from URL slug
 #
 # A large share of GKG records have an empty/NaN Quotations field, which
-# starves keyword/frame matching for those rows (flagged in
-# 02_frame_labeling.ipynb's spot-check). Most article URLs encode a readable
-# headline slug, so this derives one and uses it to backfill Quotations only
-# where it's missing.
+# starves keyword/frame matching for those rows. Most article URLs encode a
+# readable headline slug, so this derives one and uses it to backfill
+# Quotations only where it's missing.
 # ---------------------------------------------------------------------------
 
 _URL_EXT_PATTERN = re.compile(r"\.(html?|cms|ece|aspx?|php|stm)$")
