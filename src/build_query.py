@@ -1,7 +1,6 @@
 """
-Generate the three BigQuery queries (extract_genai_gov, aggregate_frames,
-event_windows) entirely from the lexicons in data/lexicons/*.yaml via
-src/dictionaries.py.
+Generate the two BigQuery queries (extract_genai_gov, count_genai_total)
+entirely from the lexicons in data/lexicons/*.yaml via src/dictionaries.py.
 
 queries/*.sql are build artifacts — regenerate with
 `python -m src.build_query --write` after editing any YAML lexicon file.
@@ -173,43 +172,25 @@ def build_extract_query(start: str = STUDY_START_DATE, end: str = STUDY_END_DATE
     )
 
 
-def build_aggregate_query(start: str = STUDY_START_DATE, end: str = STUDY_END_DATE) -> str:
-    """Per-month frame-count aggregate query, equivalent to aggregate_frames.sql.
+def build_count_total_query(start: str = STUDY_START_DATE, end: str = STUDY_END_DATE) -> str:
+    """Monthly GenAI article counts WITHOUT governance filter, equivalent to count_genai_total.sql.
 
-    Each frame checks the full FRAME_DICTS pattern against both AllNames and
-    Quotations so that the single term list in frames.yaml is the sole source
-    of truth for both SQL and Python-side frame matching.
+    Divide extract_genai_gov.sql monthly counts by these to compute the
+    governance coverage rate used in the methods validation figure.
     """
-    genai = build_genai_filter("regexp", indent=4)
-    gov = build_gov_filter("regexp", indent=4)
-
-    frame_blocks = []
-    for frame_name, terms in FRAME_DICTS.items():
-        pattern = build_regexp_pattern(terms)
-        frame_blocks.append(
-            f"  -- Frame: {frame_name}\n"
-            f"  COUNTIF(\n"
-            f"    REGEXP_CONTAINS(LOWER(Quotations), r'{pattern}')\n"
-            f"    OR REGEXP_CONTAINS(LOWER(AllNames), r'{pattern}')\n"
-            f"  ) AS frame_{frame_name}"
-        )
-    frames_sql = ",\n\n".join(frame_blocks)
-
+    genai = build_genai_filter("like")
     return (
         "SELECT\n"
         "  FORMAT_DATE(\n"
         "    '%Y-%m',\n"
         "    PARSE_DATE('%Y%m%d', SUBSTR(CAST(DATE AS STRING), 1, 8))\n"
         "  ) AS month,\n\n"
-        "  COUNT(*) AS total_articles,\n\n"
-        f"{frames_sql}\n\n"
+        "  COUNT(*) AS total_articles\n\n"
         f"FROM {TABLE}\n"
         f"WHERE DATE(_PARTITIONTIME) >= '{start}'\n"
         f"  AND DATE(_PARTITIONTIME) <= '{end}'\n\n"
-        "  -- GenAI filter (identical predicate to extract_genai_gov.sql)\n"
+        "  -- GenAI filter only — no governance filter.\n"
         f"  AND {genai}\n\n"
-        "  -- Governance filter (identical predicate to extract_genai_gov.sql)\n"
-        f"  AND {gov}\n\n"
         "GROUP BY month\n"
         "ORDER BY month;\n"
     )
@@ -232,43 +213,6 @@ def milestone_windows(milestones: list[dict] | None = None, window: int = 3) -> 
     return out
 
 
-def build_event_windows_query(
-    milestones: list[dict] | None = None,
-    window: int = 3,
-) -> str:
-    """Focused extraction limited to milestone windows, equivalent to event_windows.sql."""
-    milestones = milestones or MILESTONES
-    windows = milestone_windows(milestones, window)
-    columns = ",\n  ".join(EXTRACT_COLUMNS)
-
-    case_lines = "\n".join(
-        f"    WHEN DATE(_PARTITIONTIME) BETWEEN '{start}' AND '{end}'\n      THEN '{name}'"
-        for name, start, end in windows
-    )
-    where_lines = "\n  OR ".join(
-        f"(DATE(_PARTITIONTIME) >= '{start}' AND DATE(_PARTITIONTIME) <= '{end}')"
-        for _, start, end in windows
-    )
-
-    genai = build_genai_filter("like")
-    gov = build_gov_filter("like")
-
-    return (
-        f"SELECT\n  {columns},\n\n"
-        "  -- Tag each row with the first matching milestone window\n"
-        "  CASE\n"
-        f"{case_lines}\n"
-        "    ELSE NULL\n"
-        "  END AS milestone_window\n\n"
-        f"FROM {TABLE}\n"
-        f"WHERE (\n  {where_lines}\n)\n\n"
-        "-- GenAI filter (identical predicate to extract_genai_gov.sql)\n"
-        f"AND {genai}\n\n"
-        "-- Governance filter (identical predicate to extract_genai_gov.sql)\n"
-        f"AND {gov};\n"
-    )
-
-
 # ---------------------------------------------------------------------------
 # Write to disk
 # ---------------------------------------------------------------------------
@@ -286,22 +230,14 @@ def write_all_queries(out_dir: str | Path = "queries") -> None:
             + "\n"
             + build_extract_query()
         ),
-        "aggregate_frames.sql": (
-            "-- aggregate_frames.sql\n"
-            "-- Per-month frame counts (COUNTIF), GenAI/governance filters\n"
-            "-- identical to extract_genai_gov.sql.\n"
+        "count_genai_total.sql": (
+            "-- count_genai_total.sql\n"
+            "-- Monthly GenAI article counts WITHOUT governance filter.\n"
+            "-- Divide extract_genai_gov monthly counts by these to get the\n"
+            "-- governance coverage rate (used in the methods validation figure).\n"
             + _GENERATED_HEADER
             + "\n"
-            + build_aggregate_query()
-        ),
-        "event_windows.sql": (
-            "-- event_windows.sql\n"
-            "-- Focused extraction limited to ±3-month windows around each\n"
-            "-- milestone event. Windows computed via pandas.Period arithmetic\n"
-            "-- in src/build_query.py:milestone_windows.\n"
-            + _GENERATED_HEADER
-            + "\n"
-            + build_event_windows_query()
+            + build_count_total_query()
         ),
     }
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -312,7 +248,7 @@ def write_all_queries(out_dir: str | Path = "queries") -> None:
 def main() -> None:
     if "--write" in sys.argv[1:]:
         write_all_queries()
-        print("Wrote queries/extract_genai_gov.sql, aggregate_frames.sql, event_windows.sql")
+        print("Wrote queries/extract_genai_gov.sql, count_genai_total.sql")
         return
 
     print("-- GenAI filter block")
