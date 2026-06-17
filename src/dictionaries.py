@@ -58,6 +58,13 @@ FRAME_DICTS: dict[str, list[str]] = {
 
 FRAME_COLS: list[str] = [f"frame_{name}" for name in FRAME_DICTS]
 
+_frames_neg = _load("frames_neg.yaml")
+
+# Negative poles for bipolar FrameAxis scoring (see data/lexicons/frames_neg.yaml).
+FRAME_DICTS_NEG: dict[str, list[str]] = {
+    frame: _flatten(langs) for frame, langs in _frames_neg.items()
+}
+
 # GKG fields used for keyword matching (V2Themes is handled separately via theme codes)
 GKG_TEXT_COLS: list[str] = ["AllNames", "Quotations"]
 

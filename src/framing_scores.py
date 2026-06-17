@@ -95,14 +95,15 @@ def _load_sentence_transformer(model_name: str = _EMBEDDING_MODEL):
                 "Install with: pip install -r requirements-ml.txt"
             ) from e
         _MODEL_CACHE[model_name] = SentenceTransformer(model_name, device=_get_device())
+        print(f"[framing_scores] {model_name.split('/')[-1]} loaded. Starting encoding...")
     return _MODEL_CACHE[model_name]
 
 
 def _compute_frame_centroids(
-    frame_dicts: dict[str, list[str]], model, model_name: str
+    frame_dicts: dict[str, list[str]], model, model_name: str, prefix: str = "pos"
 ) -> dict[str, np.ndarray]:
     """Encode each frame's keyword list and return the mean embedding (centroid)."""
-    key = (model_name, tuple(sorted(frame_dicts.keys())))
+    key = (model_name, prefix, tuple(sorted(frame_dicts.keys())))
     if key not in _CENTROID_CACHE:
         centroids = {}
         for name, keywords in frame_dicts.items():
@@ -115,8 +116,9 @@ def _compute_frame_centroids(
 def assign_frame_scores_embedding(
     texts: list[str],
     frame_dicts: dict[str, list[str]],
+    frame_dicts_neg: dict[str, list[str]] | None = None,
     model_name: str = _EMBEDDING_MODEL,
-    batch_size: int = 64,
+    batch_size: int = 256,
 ) -> pd.DataFrame:
     """Cosine-similarity scores between article texts and frame keyword centroids.
 
@@ -142,6 +144,15 @@ def assign_frame_scores_embedding(
     centroid_norm = _normalise(centroid_matrix)
 
     scores = article_norm @ centroid_norm.T  # (n_articles, n_frames)
+
+    if frame_dicts_neg is not None:
+        neg_centroids = _compute_frame_centroids(
+            frame_dicts_neg, model, model_name, prefix="neg"
+        )
+        neg_matrix = np.stack([neg_centroids[k] for k in centroids.keys()])
+        neg_norm = _normalise(neg_matrix)
+        scores = scores - (article_norm @ neg_norm.T)
+
     return pd.DataFrame(scores, columns=list(centroids.keys()))
 
 
@@ -150,19 +161,22 @@ def assign_frame_scores_embedding(
 # ---------------------------------------------------------------------------
 
 def _load_nli_pipeline(model_name: str = _NLI_MODEL):
-    try:
-        from transformers import pipeline
-    except ImportError as e:
-        raise ImportError(
-            "transformers is required for NLI scoring. "
-            "Install with: pip install -r requirements-ml.txt"
-        ) from e
-    return pipeline(
-        "zero-shot-classification",
-        model=model_name,
-        multi_label=True,
-        device=_get_device(),
-    )
+    if model_name not in _MODEL_CACHE:
+        try:
+            from transformers import pipeline
+        except ImportError as e:
+            raise ImportError(
+                "transformers is required for NLI scoring. "
+                "Install with: pip install -r requirements-ml.txt"
+            ) from e
+        _MODEL_CACHE[model_name] = pipeline(
+            "zero-shot-classification",
+            model=model_name,
+            multi_label=True,
+            device=_get_device(),
+        )
+        print(f"[framing_scores] {model_name.split('/')[-1]} loaded. Starting NLI scoring...")
+    return _MODEL_CACHE[model_name]
 
 
 def assign_frame_scores_nli(
@@ -214,8 +228,10 @@ def assign_frame_scores_nli(
         # Fallback when torch is not installed (shouldn't happen if NLI is running).
         iterable = classifier(texts, hypothesis_list, multi_label=True)
 
+    from tqdm.auto import tqdm
+
     rows = []
-    for res in iterable:
+    for res in tqdm(iterable, total=len(texts), desc="NLI"):
         score_map = dict(zip(res["labels"], res["scores"]))
         rows.append([score_map.get(h, 0.0) for h in hypothesis_list])
 

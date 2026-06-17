@@ -1,0 +1,77 @@
+# Negative-pole keywords for bipolar FrameAxis scoring.
+# Same structure as frames.yaml — loader uses _flatten to get a flat term list per frame.
+# Each list anchors the "clearly NOT this frame" end of the semantic axis.
+#
+# Rationale per frame:
+#   innovation_opportunity neg → risk/danger language (articles emphasising harms, not benefits)
+#   risk_safety neg            → positive/beneficial language (articles about AI's upside)
+#   regulation_governance neg  → product/technical launch language (not about governance)
+#   rights_privacy neg         → commercial/financial language (no rights framing)
+#   economic_competition_labour neg → scientific/research language (not economic)
+#   misinformation_integrity neg    → constructive/medical AI language (not deception)
+
+innovation_opportunity:
+  en: [risk, harm, danger, threat, warning, unsafe, misuse, failure]
+  fr: [risque, préjudice, danger, menace, avertissement, dangereux, mauvais usage, échec]
+  de: [risiko, schaden, gefahr, bedrohung, warnung, unsicher, missbrauch, versagen]
+  es: [riesgo, daño, peligro, amenaza, advertencia, peligroso, uso indebido, fracaso]
+  it: [rischio, danno, pericolo, minaccia, avvertimento, pericoloso, uso improprio, fallimento]
+  nl: [risico, schade, gevaar, bedreiging, waarschuwing, onveilig, misbruik, mislukking]
+  pl: [ryzyko, szkoda, zagrożenie, ostrzeżenie, niebezpieczny, nadużycie, niepowodzenie]
+  pt: [risco, dano, perigo, ameaça, aviso, perigoso, uso indevido, falha]
+  ro: [risc, daună, pericol, amenințare, avertisment, nesigur, utilizare necorespunzătoare, eșec]
+
+risk_safety:
+  en: [safe, beneficial, helpful, promising, improvement, advantage, benefit, success]
+  fr: [sûr, bénéfique, utile, prometteur, amélioration, avantage, bénéfice, succès]
+  de: [sicher, vorteilhaft, hilfreich, vielversprechend, verbesserung, vorteil, nutzen, erfolg]
+  es: [seguro, beneficioso, útil, prometedor, mejora, ventaja, beneficio, éxito]
+  it: [sicuro, benefico, utile, promettente, miglioramento, vantaggio, beneficio, successo]
+  nl: [veilig, voordelig, nuttig, veelbelovend, verbetering, voordeel, profijt, succes]
+  pl: [bezpieczny, korzystny, pomocny, obiecujący, poprawa, korzyść, korzyści, sukces]
+  pt: [seguro, benéfico, útil, promissor, melhoria, vantagem, benefício, sucesso]
+  ro: [sigur, benefic, util, promițător, îmbunătățire, avantaj, beneficiu, succes]
+
+regulation_governance:
+  en: [launches, released, product, benchmark, performance, capability, update, feature]
+  fr: [lance, publié, produit, performance, capacité, mise à jour, fonctionnalité, sortie]
+  de: [einführt, veröffentlicht, produkt, leistung, fähigkeit, aktualisierung, funktion, release]
+  es: [lanza, publicado, producto, rendimiento, capacidad, actualización, función, lanzamiento]
+  it: [lancia, rilasciato, prodotto, prestazione, capacità, aggiornamento, funzionalità, uscita]
+  nl: [lanceert, uitgebracht, product, prestatie, vermogen, update, functie, release]
+  pl: [uruchamia, wydany, produkt, wydajność, zdolność, aktualizacja, funkcja, premiera]
+  pt: [lança, publicado, produto, desempenho, capacidade, atualização, funcionalidade, lançamento]
+  ro: [lansează, lansat, produs, performanță, capacitate, actualizare, funcționalitate, versiune]
+
+rights_privacy:
+  en: [investment, funding, revenue, valuation, profit, startup, market, growth]
+  fr: [investissement, financement, revenus, valorisation, profit, démarrage, marché, croissance]
+  de: [investition, finanzierung, einnahmen, bewertung, gewinn, startup, markt, wachstum]
+  es: [inversión, financiación, ingresos, valoración, beneficio, startup, mercado, crecimiento]
+  it: [investimento, finanziamento, ricavi, valutazione, profitto, startup, mercato, crescita]
+  nl: [investering, financiering, inkomsten, waardering, winst, startup, markt, groei]
+  pl: [inwestycja, finansowanie, przychody, wycena, zysk, startup, rynek, wzrost]
+  pt: [investimento, financiamento, receita, avaliação, lucro, startup, mercado, crescimento]
+  ro: [investiție, finanțare, venituri, evaluare, profit, startup, piață, creștere]
+
+economic_competition_labour:
+  en: [research, study, paper, algorithm, training, architecture, benchmark, method]
+  fr: [recherche, étude, article scientifique, algorithme, entraînement, architecture, test, méthode]
+  de: [forschung, studie, paper, algorithmus, training, architektur, benchmark, methode]
+  es: [investigación, estudio, artículo científico, algoritmo, entrenamiento, arquitectura, prueba, método]
+  it: [ricerca, studio, paper, algoritmo, addestramento, architettura, benchmark, metodo]
+  nl: [onderzoek, studie, paper, algoritme, training, architectuur, benchmark, methode]
+  pl: [badania, badanie, artykuł naukowy, algorytm, trening, architektura, benchmark, metoda]
+  pt: [pesquisa, estudo, artigo científico, algoritmo, treinamento, arquitetura, benchmark, método]
+  ro: [cercetare, studiu, lucrare, algoritm, antrenament, arhitectură, benchmark, metodă]
+
+misinformation_integrity:
+  en: [education, research, medical, healthcare, assistant, productivity, science, discovery]
+  fr: [éducation, recherche, médical, santé, assistant, productivité, science, découverte]
+  de: [bildung, forschung, medizinisch, gesundheitsversorgung, assistent, produktivität, wissenschaft, entdeckung]
+  es: [educación, investigación, médico, atención sanitaria, asistente, productividad, ciencia, descubrimiento]
+  it: [educazione, ricerca, medico, assistenza sanitaria, assistente, produttività, scienza, scoperta]
+  nl: [onderwijs, onderzoek, medisch, gezondheidszorg, assistent, productiviteit, wetenschap, ontdekking]
+  pl: [edukacja, badania, medyczny, opieka zdrowotna, asystent, produktywność, nauka, odkrycie]
+  pt: [educação, pesquisa, médico, saúde, assistente, produtividade, ciência, descoberta]
+  ro: [educație, cercetare, medical, îngrijire medicală, asistent, productivitate, știință, descoperire]
