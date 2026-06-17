@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 #   https://drive.google.com/file/d/<FILE_ID>/view
 MANIFEST: dict[str, dict[str, str]] = {
     "data/raw/gdelt_genai_gov.csv": {
-        "id": "TODO_GDRIVE_ID",
+        "id": "1-Ni2133WP0FtrnK8uIOqScjqht9QU7kW",
         "description": "Main GDELT corpus (~4.7 GB)",
     },
     "data/raw/monthly_genai_total.csv": {
@@ -60,7 +60,7 @@ def download_file(rel_path: str, entry: dict[str, str], force: bool) -> bool:
     dest.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        result = gdown.download(id=file_id, output=str(dest), fuzzy=False, quiet=False)
+        result = gdown.download(id=file_id, output=str(dest), quiet=False)
         if result is None:
             print(f"  ERROR  gdown returned None for {rel_path} — check the file ID and sharing permissions")
             return False
