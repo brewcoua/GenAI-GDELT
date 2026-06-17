@@ -39,8 +39,6 @@ GENAI_LEXICON: list[str] = [
     "midjourney",
     "text-to-image",
     "image generator",
-    # added from Alt_impl/GDELT_Web_Sci.ipynb (cell 2) — model/vendor names not
-    # previously covered by the text-field lexicon above
     "copilot",
     "grok",
     "llama",
@@ -52,75 +50,389 @@ GENAI_LEXICON: list[str] = [
 # Quotations is a much longer field, so only broad contextual phrases are
 # checked there to control scan cost and avoid false hits from short/ambiguous
 # product names (e.g. "Bard", "Grok") appearing as ordinary words inside quotes.
-GENAI_LEXICON_CONTEXTUAL: list[str] = [
-    "chatgpt",
-    "generative ai",
-    "large language model",
-    "foundation model",
-    "frontier model",
-    "anthropic",
-]
+#
+# Structured as {iso-639-1 code: [terms]} so non-English EU articles whose
+# quoted text is in French, German, etc. are captured. build_query.py flattens
+# this to a single list before generating SQL.
+GENAI_LEXICON_CONTEXTUAL: dict[str, list[str]] = {
+    "en": [
+        "chatgpt",
+        "generative ai",
+        "large language model",
+        "foundation model",
+        "frontier model",
+        "anthropic",
+    ],
+    "fr": [
+        "ia générative",
+        "intelligence artificielle générative",
+        "grand modèle de langage",
+        "modèle de langage",
+        "modèle de fondation",
+    ],
+    "de": [
+        "generative ki",
+        "generative künstliche intelligenz",
+        "großes sprachmodell",
+        "sprachmodell",
+        "basismodell",
+    ],
+    "es": [
+        "ia generativa",
+        "inteligencia artificial generativa",
+        "modelo de lenguaje grande",
+        "modelo de lenguaje",
+        "modelo fundacional",
+    ],
+    "it": [
+        "ia generativa",
+        "intelligenza artificiale generativa",
+        "modello linguistico",
+        "modello di linguaggio",
+        "modello fondazionale",
+    ],
+    "nl": [
+        "generatieve ai",
+        "generatieve kunstmatige intelligentie",
+        "groot taalmodel",
+        "taalmodel",
+        "basismodel",
+    ],
+    "pl": [
+        "generatywna ai",
+        "generatywna sztuczna inteligencja",
+        "duży model językowy",
+        "model językowy",
+        "model podstawowy",
+    ],
+    "pt": [
+        "ia generativa",
+        "inteligência artificial generativa",
+        "grande modelo de linguagem",
+        "modelo de linguagem",
+        "modelo fundacional",
+    ],
+}
 
-GOV_LEXICON: list[str] = [
-    "governance",
-    "regulation",
-    "regulatory",
-    "regulator",
-    "policy",
-    "oversight",
-    "law",
-    "legislation",
-    # "act" deliberately excluded: as a bare substring it matches "fact",
-    # "react", "impact", "contact", "interact", "transaction", "exactly",
-    # "enact", "actor", "actually" etc. — the same "don't put substring-unsafe
-    # bare words in a dict that drives substring matching" rule FRAME_DICTS
-    # documents below. "ai act" / "eu ai act" are kept since they're specific
-    # enough not to collide.
-    "ai act",
-    "eu ai act",
-    "framework",
-    "guidelines",
-    "compliance",
-    "enforcement",
-    "accountability",
-    "liability",
-    "responsible ai",
-    "trustworthy ai",
-    "ethical ai",
-    "risk management",
-    "guardrails",
-    "safeguards",
-    "ai safety",
-    "human rights",
-    "privacy",
-    "data protection",
-    "misinformation",
-    "deepfake",
-]
+# Structured as {iso-639-1 code: [terms]} to reduce the English-language bias
+# introduced by matching only against English quotations. build_query.py flattens
+# this before generating SQL. The GenAI AND-filter guards against false positives
+# from common governance words in unrelated articles.
+#
+# Notes on specific exclusions / per-language decisions:
+#   - "act" is excluded from "en" (substring-unsafe — see comment below).
+#     "ai act" / "eu ai act" are safe and kept in "en"; EU press commonly uses
+#     these English phrases even in non-English articles, so no translation needed.
+#   - "deepfake" is kept in "en" only — it is a universal loanword used across
+#     all EU languages without translation.
+#   - German "datenschutz" covers both "privacy" and "data protection"; listed
+#     once to avoid duplicate LIKE clauses.
+#   - "compliance" and "governance" are international business/legal terms used
+#     verbatim in German, Dutch, and Italian press; they remain in those sections.
+GOV_LEXICON: dict[str, list[str]] = {
+    "en": [
+        "governance",
+        "regulation",
+        "regulatory",
+        "regulator",
+        "policy",
+        "oversight",
+        "law",
+        "legislation",
+        # "act" deliberately excluded: as a bare substring it matches "fact",
+        # "react", "impact", "contact", "interact", "transaction", "exactly",
+        # "enact", "actor", "actually" etc. — the same "don't put substring-unsafe
+        # bare words in a dict that drives substring matching" rule FRAME_DICTS
+        # documents below. "ai act" / "eu ai act" are kept since they're specific
+        # enough not to collide.
+        "ai act",
+        "eu ai act",
+        "framework",
+        "guidelines",
+        "compliance",
+        "enforcement",
+        "accountability",
+        "liability",
+        "responsible ai",
+        "trustworthy ai",
+        "ethical ai",
+        "risk management",
+        "guardrails",
+        "safeguards",
+        "ai safety",
+        "human rights",
+        "privacy",
+        "data protection",
+        "misinformation",
+        "deepfake",
+    ],
+    "fr": [
+        "gouvernance",
+        "réglementation",
+        "régulation",
+        "réglementaire",
+        "régulateur",
+        "politique",
+        "surveillance",
+        "loi",
+        "législation",
+        "cadre réglementaire",
+        "lignes directrices",
+        "conformité",
+        "mise en application",
+        "reddition de comptes",
+        "responsabilité civile",
+        "ia responsable",
+        "ia digne de confiance",
+        "ia éthique",
+        "gestion des risques",
+        "garde-fous",
+        "garanties",
+        "sécurité de l'ia",
+        "droits humains",
+        "droits de l'homme",
+        "vie privée",
+        "protection des données",
+        "désinformation",
+    ],
+    "de": [
+        "governance",
+        "regulierung",
+        "regulatorisch",
+        "aufsichtsbehörde",
+        "richtlinie",
+        "aufsicht",
+        "gesetz",
+        "gesetzgebung",
+        "rechtsrahmen",
+        "leitlinien",
+        "compliance",
+        "durchsetzung",
+        "rechenschaftspflicht",
+        "haftung",
+        "verantwortungsvolle ki",
+        "vertrauenswürdige ki",
+        "ethische ki",
+        "risikomanagement",
+        "leitplanken",
+        "schutzmaßnahmen",
+        "ki-sicherheit",
+        "menschenrechte",
+        "datenschutz",  # covers both "privacy" and "data protection" in German
+        "desinformation",
+    ],
+    "es": [
+        "gobernanza",
+        "regulación",
+        "regulatorio",
+        "regulador",
+        "política",
+        "supervisión",
+        "ley",
+        "legislación",
+        "marco regulatorio",
+        "directrices",
+        "cumplimiento",
+        "aplicación",
+        "rendición de cuentas",
+        "responsabilidad",
+        "ia responsable",
+        "ia confiable",
+        "ia ética",
+        "gestión de riesgos",
+        "salvaguardas",
+        "salvaguardias",
+        "seguridad de la ia",
+        "derechos humanos",
+        "privacidad",
+        "protección de datos",
+        "desinformación",
+    ],
+    "it": [
+        "governance",
+        "regolamentazione",
+        "normativo",
+        "regolatorio",
+        "autorità di regolazione",
+        "politica",
+        "supervisione",
+        "legge",
+        "legislazione",
+        "quadro normativo",
+        "linee guida",
+        "conformità",
+        "applicazione",
+        "responsabilità",
+        "ia responsabile",
+        "ia affidabile",
+        "ia etica",
+        "gestione del rischio",
+        "salvaguardie",
+        "garanzie",
+        "sicurezza dell'ia",
+        "diritti umani",
+        "riservatezza",
+        "protezione dei dati",
+        "disinformazione",
+    ],
+    "nl": [
+        "governance",
+        "regulering",
+        "regelgeving",
+        "regelgevend",
+        "toezichthouder",
+        "beleid",
+        "toezicht",
+        "wet",
+        "wetgeving",
+        "kader",
+        "richtlijnen",
+        "naleving",
+        "handhaving",
+        "verantwoording",
+        "aansprakelijkheid",
+        "verantwoorde ai",
+        "betrouwbare ai",
+        "ethische ai",
+        "risicobeheer",
+        "vangrails",
+        "waarborgen",
+        "ai-veiligheid",
+        "mensenrechten",
+        "privacy",
+        "gegevensbescherming",
+        "desinformatie",
+    ],
+    "pl": [
+        "zarządzanie",
+        "regulacja",
+        "regulacyjny",
+        "organ regulacyjny",
+        "polityka",
+        "nadzór",
+        "prawo",
+        "ustawodawstwo",
+        "ramy prawne",
+        "wytyczne",
+        "zgodność",
+        "egzekwowanie",
+        "rozliczalność",
+        "odpowiedzialność",
+        "odpowiedzialna ai",
+        "godna zaufania ai",
+        "etyczna ai",
+        "zarządzanie ryzykiem",
+        "zabezpieczenia",
+        "środki ochrony",
+        "bezpieczeństwo ai",
+        "prawa człowieka",
+        "prywatność",
+        "ochrona danych",
+        "dezinformacja",
+    ],
+    "pt": [
+        "governança",
+        "regulamentação",
+        "regulação",
+        "regulatório",
+        "regulador",
+        "política",
+        "supervisão",
+        "fiscalização",
+        "lei",
+        "legislação",
+        "quadro regulatório",
+        "diretrizes",
+        "conformidade",
+        "aplicação",
+        "responsabilização",
+        "prestação de contas",
+        "ia responsável",
+        "ia confiável",
+        "ia ética",
+        "gestão de riscos",
+        "salvaguardas",
+        "garantias",
+        "segurança da ia",
+        "direitos humanos",
+        "privacidade",
+        "proteção de dados",
+        "desinformação",
+    ],
+    "ro": [
+        "guvernanță",
+        "reglementare",
+        "regulatorie",
+        "autoritate de reglementare",
+        "politică",
+        "supraveghere",
+        "lege",
+        "legislație",
+        "cadru normativ",
+        "orientări",
+        "conformitate",
+        "aplicare",
+        "răspundere",
+        "ia responsabilă",
+        "siguranța ia",
+        "gestionarea riscurilor",
+        "garanții",
+        "drepturile omului",
+        "confidențialitate",
+        "viața privată",
+        "protecția datelor",
+        "dezinformare",
+    ],
+}
 
 # GDELT V2Themes codes that signal a regulatory/legal/ethics/rights dimension.
-# Ported from Alt_impl/GDELT_Web_Sci.ipynb (cell 2), merged with the three codes
-# the original extract_genai_gov.sql already checked (ECON_REGULATION, UNGP,
-# HUMAN_RIGHTS). Used as additional OR-branches inside the governance filter,
-# not as a standalone corpus criterion — see MERGE_PLAN.md for why that
-# distinction matters (Alt_impl's own query only used these as a derived
-# column, not a filter, which silently drops the "and governance" half of the
-# corpus definition in PLAN.md).
+# All codes verified against the existing raw corpus (LIKE-substring hit counts
+# measured on gdelt_genai_gov.csv). Codes are matched via SQL LIKE '%code%' so a
+# shorter prefix can intentionally catch multiple more-specific codes
+# (e.g. "HUMAN_RIGHTS" catches WB_2203_HUMAN_RIGHTS, SELF_IDENTIFIED_HUMAN_RIGHTS,
+# WB_2507_HUMAN_RIGHTS_ABUSES_AND_VIOLATIONS etc.; "WB_282_ICT_POLICY_REGULATORY_FRAMEWORK"
+# catches the full WB_282_ICT_POLICY_REGULATORY_FRAMEWORK_AND_INSTITUTIONS code).
+#
+# Removed from the original list (0 LIKE hits in corpus — do not exist in GDELT):
+#   ECON_REGULATION, UNGP (too broad — 83% is UNGP_FORESTS_RIVERS_OCEANS),
+#   EPU_POLICY_NATIONAL_SECURITY, TAX_WORLDLEGALRIGHTS, TAX_WORLDLEGALRIGHTS_PRIVACY
 GOV_THEME_TAGS: list[str] = [
-    "ECON_REGULATION",
-    "UNGP",
-    "HUMAN_RIGHTS",
-    "EPU_CATS_REGULATION",
-    "EPU_POLICY_LAW",
-    "EPU_POLICY_REGULATION",
-    "LEGISLATION",
-    "WB_831_GOVERNANCE",
-    "WB_2089_ETHICS_AND_CODES_OF_CONDUCT",
-    "WB_845_LEGAL_AND_REGULATORY_FRAMEWORK",
-    "WB_851_INTELLECTUAL_PROPERTY_RIGHTS",
-    "WB_838_PUBLIC_ACCOUNTABILITY_MECHANISMS",
-    "WB_279_ICT_STRATEGY_POLICY_AND_REGULATION",
-    "WB_282_ICT_POLICY_REGULATORY_FRAMEWORK",
+    # --- Policy / regulatory / legal framework ---
+    "EPU_CATS_REGULATION",              # 223K hits
+    "EPU_POLICY_LAW",                   # 463K hits
+    "EPU_POLICY_REGULATION",            # 49K hits
+    "LEGISLATION",                      # 511K hits
+    "WB_831_GOVERNANCE",                # 373K hits
+    "WB_845_LEGAL_AND_REGULATORY_FRAMEWORK",  # 103K hits
+    "WB_279_ICT_STRATEGY_POLICY_AND_REGULATION",       # 779 hits
+    "WB_282_ICT_POLICY_REGULATORY_FRAMEWORK",          # 634 hits (prefix-matches _AND_INSTITUTIONS)
+    # --- Ethics / accountability / rights ---
+    "WB_2089_ETHICS_AND_CODES_OF_CONDUCT",  # 36K hits
+    "WB_838_PUBLIC_ACCOUNTABILITY_MECHANISMS",  # 34K hits
+    "WB_851_INTELLECTUAL_PROPERTY_RIGHTS",  # 46K hits
+    "HUMAN_RIGHTS",                     # 76K hits (prefix-matches WB_2203_HUMAN_RIGHTS etc.)
+    "UNGP_POLITICAL_FREEDOMS",          # 52K hits
+    "UNGP_FREEDOM_FROM_DISCRIMINATION", # 45K hits
+    "UNGP_CRIME_VIOLENCE",              # 155K hits
+    # --- Digital / ICT governance ---
+    "WB_133_INFORMATION_AND_COMMUNICATION_TECHNOLOGIES",  # 284K hits
+    "WB_678_DIGITAL_GOVERNMENT",        # 272K hits
+    "WB_670_ICT_SECURITY",              # 33K hits
+    # --- Security / safety ---
+    "EPU_CATS_NATIONAL_SECURITY",       # 166K hits
+    "CYBER_ATTACK",                     # 28K hits
+    # --- Legal proceedings / enforcement ---
+    "WB_840_JUSTICE",                   # 257K hits
+    "WB_1014_CRIMINAL_JUSTICE",         # 165K hits
+    "TRIAL",                            # 196K hits
+    # --- Privacy / data protection ---
+    "WB_2369_DATA_PRIVACY",             # 3K hits (specific and high-precision)
+    # --- Democratic / electoral context ---
+    "ELECTION",                         # 121K hits
+    "ELECTION_FRAUD",                   # 4K hits
+    # --- Governance actors ---
+    "GENERAL_GOVERNMENT",               # 313K hits
+    "TAX_FNCACT_REGULATOR",             # 14K hits
 ]
 
 # URL-slug substrings (matched against DocumentIdentifier) that signal a

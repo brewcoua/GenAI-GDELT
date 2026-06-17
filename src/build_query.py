@@ -84,6 +84,13 @@ def build_regexp_pattern(terms: list[str]) -> str:
     return "|".join(_regexp_escape(t) for t in terms)
 
 
+def _flatten_lexicon(lexicon: list[str] | dict[str, list[str]]) -> list[str]:
+    """Accept either a flat list or a language-keyed dict and return a flat list."""
+    if isinstance(lexicon, dict):
+        return [term for terms in lexicon.values() for term in terms]
+    return list(lexicon)
+
+
 def build_like_block(terms: list[str], fields: list[str], indent: int = 4, lower: bool = True) -> str:
     """Build a SQL OR block: each term x each field as a LIKE clause.
 
@@ -119,10 +126,10 @@ def build_genai_filter(style: str = "like", indent: int = 4) -> str:
     pad = " " * indent
     if style == "like":
         all_names = build_like_block(GENAI_LEXICON, ["AllNames"], indent=indent)
-        quotations = build_like_block(GENAI_LEXICON_CONTEXTUAL, ["Quotations"], indent=indent)
+        quotations = build_like_block(_flatten_lexicon(GENAI_LEXICON_CONTEXTUAL), ["Quotations"], indent=indent)
     elif style == "regexp":
         all_names = _regexp_clause("AllNames", GENAI_LEXICON, indent=indent)
-        quotations = _regexp_clause("Quotations", GENAI_LEXICON_CONTEXTUAL, indent=indent)
+        quotations = _regexp_clause("Quotations", _flatten_lexicon(GENAI_LEXICON_CONTEXTUAL), indent=indent)
     else:
         raise ValueError(f"unknown style: {style}")
     return f"(\n{all_names}\n{pad}OR\n{quotations}\n)"
@@ -132,11 +139,11 @@ def build_gov_filter(style: str = "like", indent: int = 4) -> str:
     """Full parenthesized governance filter: keyword-in-Quotations OR theme-tag-in-V2Themes OR url-slug-in-DocumentIdentifier."""
     pad = " " * indent
     if style == "like":
-        keyword = build_like_block(GOV_LEXICON, _GOV_FIELDS, indent=indent)
+        keyword = build_like_block(_flatten_lexicon(GOV_LEXICON), _GOV_FIELDS, indent=indent)
         theme = build_like_block(GOV_THEME_TAGS, _GOV_THEME_FIELD, indent=indent, lower=False)
         url = build_like_block(GOV_URL_SLUGS, _GOV_URL_FIELD, indent=indent)
     elif style == "regexp":
-        keyword = _regexp_clause("Quotations", GOV_LEXICON, indent=indent)
+        keyword = _regexp_clause("Quotations", _flatten_lexicon(GOV_LEXICON), indent=indent)
         theme = _regexp_clause("V2Themes", GOV_THEME_TAGS, lower=False, indent=indent)
         url = _regexp_clause("DocumentIdentifier", GOV_URL_SLUGS, indent=indent)
     else:
