@@ -100,7 +100,7 @@ def build_like_block(terms: list[str], fields: list[str], indent: int = 4, lower
     clauses = []
     for field in fields:
         for term in terms:
-            escaped = term.replace("'", "''")
+            escaped = term.replace("'", "\\'")
             target = f"LOWER({field})" if lower else field
             clauses.append(f"{target} LIKE '%{escaped}%'")
     first, *rest = clauses
