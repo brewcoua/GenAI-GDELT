@@ -45,7 +45,7 @@ This dataset accompanies the paper:
 
 > **Framing Generative AI Governance in Online News: A Longitudinal Analysis of 1.1 Million Articles (2022–2026)**  
 > Brewen Couaran, Yuvraj Singh Pathania, Arjun Rajesh Nair · 2026  
-> Code & paper: [github.com/brewcoua/GenAI-GDELT](https://github.com/brewcoua/GenAI-GDELT)  
+> PDF: [paper/paper.pdf](https://github.com/brewcoua/GenAI-GDELT/raw/master/paper/paper.pdf) · Code: [github.com/brewcoua/GenAI-GDELT](https://github.com/brewcoua/GenAI-GDELT)  
 > Companion site: [brewcoua.github.io/GenAI-GDELT](https://brewcoua.github.io/GenAI-GDELT)
 
 ## Dataset overview
