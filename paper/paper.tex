@@ -70,7 +70,7 @@
 %%
 %% The "title" command has an optional parameter,
 %% allowing the author to define a "short title" to be used in page headers.
-\title{Framing Generative AI Governance in Online News: A Timeline Analysis from ChatGPT’s Launch to the EU AI Act (2022–2026)}
+\title{Framing Generative AI Governance in Online News: A Timeline Analysis from ChatGPT's Launch to the EU AI Act (2022--2026)}
 \subtitle{DSAIT4055 Web Science and Engineering (2025/26 Q4)}
 
 %%
@@ -183,7 +183,7 @@ We address three research questions:
 \begin{enumerate}
     \item[\textbf{RQ1.}] How has the monthly volume of online news coverage of generative AI governance changed between late 2022 and mid-2026?
     \item[\textbf{RQ2.}] Which governance-related frames dominate coverage, and how does their relative salience evolve over time?
-    \item[\textbf{RQ3.}] Do major AI governance milestones coincide with noticeable shifts in coverage volume or dominant framing?
+    \item[\textbf{RQ3.}] Do major AI governance milestones coincide with measurable shifts in the prevalence of governance frames?
 \end{enumerate}
 
 We make three contributions.
@@ -230,10 +230,10 @@ The GKG indexes online news articles at global scale, providing structured metad
 
 An article enters our corpus when it meets two conditions at once.
 First, it must carry a generative AI signal: a 34-term lexicon (including \textit{ChatGPT}, \textit{large language model}, \textit{GPT-4}, \textit{Gemini}, \textit{Anthropic}, \textit{DeepSeek}, \textit{AI agent}) matched against \texttt{AllNames}, with a multilingual contextual subset additionally matched against \texttt{Quotations}.
-Second, it must carry a governance signal, operationalized as any of three complementary indicators: 
+Second, it must carry a governance signal, operationalized as any of three complementary indicators:
 \begin{enumerate}
-    \item 27 regulation and policy keywords in \texttt{Quotations}.
-    \item 17 GDELT thematic codes spanning legal, accountability, and policy categories (e.g. \texttt{ECON\_REGULATION}, \texttt{LEGISLATION}, \texttt{WB\_831\_GOVERNANCE}).
+    \item 28 regulation and policy keywords in \texttt{Quotations}.
+    \item 28 GDELT thematic codes spanning legal, accountability, and policy categories (e.g. \texttt{EPU\_POLICY\_REGULATION}, \texttt{LEGISLATION}, \texttt{WB\_831\_GOVERNANCE}).
     \item 18 URL-slug patterns (e.g. \texttt{-regulat}, \texttt{-policy-}, \texttt{-ai-act}).
 \end{enumerate}
 
@@ -242,6 +242,7 @@ Querying from 2022-11-01 to 2026-06-30 yields 1,116,091 articles across 44~month
 As a sanity check, governance-flagged articles make up 50.7\% of all GenAI-matching articles over the same period, so the filter captures a large, reasonably well-bounded slice of GenAI discourse.
 
 \subsection{Frame Taxonomy and Assignment}
+\label{sec:taxonomy}
 
 We operationalize governance framing through a six-category taxonomy (Table~\ref{tab:frames}), designed to capture the principal evaluative lenses through which journalists interpret AI regulation.
 The categories are informed by Semetko and Valkenburg's~\cite{semetko_framing_2000} generic frame typology and adapted to the generative AI domain following recent media studies.
@@ -284,12 +285,11 @@ Cross-frame comparisons should still be read as relative emphasis rather than ab
 
 \subsection{Tone Measurement}
 
-GDELT computes an automated tone score (\texttt{V2Tone}) for each GKG record based on lexical cues in the article text.
-We extract the first component of this field, where positive values indicate more favorable coverage and negative values more critical coverage.
-Tone is aggregated monthly across all corpus articles and separately by dominant frame to examine affective variation across governance narratives.
-Given that GDELT's tone scoring is rule-based and susceptible to noise, we treat tone results as supplementary and indicative throughout.
+GDELT computes an automated tone score (\texttt{V2Tone}) for each GKG record from lexical cues, where positive values indicate more favorable and negative values more critical coverage; we aggregate its first component by dominant frame.
+Because this scoring is rule-based and susceptible to noise, we treat tone as a supplementary, indicative signal throughout.
 
 \subsection{Event Study Design}
+\label{sec:eventdesign}
 
 To address RQ3, we adopt a before--after event-study design.
 For each of eight major AI governance milestones, we define an adaptive symmetric window: for each milestone the window length equals $\min(d_{\mathrm{prev}},\, d_{\mathrm{next}},\, 90)$~days, where $d_{\mathrm{prev}}$ and $d_{\mathrm{next}}$ are the distances to the preceding and following milestones respectively.
@@ -297,29 +297,13 @@ This prevents adjacent milestones from contaminating each other's comparison per
 We measure the change in regulation and risk frame prevalence between the pre-milestone and post-milestone periods.
 We test each change two ways: a label-permutation test (10{,}000 random pre/post reassignments within the window) checks whether a delta exceeds sampling noise, and a window-matched placebo, the same delta computed at random non-milestone dates, gauges how large it is relative to ordinary temporal variation.
 The milestones span the full governance lifecycle: the ChatGPT launch (November 2022), the Pause AI open letter (March 2023), the Bletchley Summit (November 2023), the EU AI Act political agreement (December 2023), the Seoul AI Safety Summit (May 2024), the EU AI Act's entry into force (August 2024), the OpenAI o1 public release (September 2024), and the GPAI model obligations (August 2025).
-Three additional recent events (DeepSeek-R1 and the Trump AI executive order in January 2025, EU AI Act prohibited-practices enforcement in February 2025, and the Claude Fable~5 release with US AI export controls in June 2026) yield comparison windows of 8--13~days and are noted in the discussion as indicative rather than conclusive.
-
-\subsection{Limitations}
-
-A few limitations should be kept in mind.
-Although the frame dictionaries cover nine languages, GDELT's indexing over-represents English-language sources; the multilingual terms extend coverage in principle, but in practice the corpus skews Anglophone, limiting generalizability to non-Anglophone media ecosystems.
-This also confounds the regional comparison (§4.4): because our EU subset is restricted to English-language sources with EU-registered domains, the US--EU framing gap may partly reflect GDELT's language and sourcing composition rather than genuine editorial differences.
-Frame assignment relies on \texttt{AllNames} and \texttt{Quotations} rather than full article prose: \texttt{AllNames} fires on named entities throughout the article and \texttt{Quotations} captures direct source speech from anywhere in the body, so coverage is article-wide rather than headline-only, but continuous journalistic text between named entities and quotes is not analysed; subtler framing that is neither entity-driven nor quote-driven may be missed.
-The vocabulary overlap between the corpus governance filter and the Regulation frame inflates that frame's base rate, although the robustness check in §3.2 leaves its rank and the milestone deltas essentially unchanged.
-The event-study deltas, while mostly significant against sampling noise, are modest relative to background temporal volatility (§4.4); milestone attributions are therefore suggestive rather than causal.
-The temporal proximity of the Bletchley Summit and the EU AI Act agreement complicates the attribution of framing shifts to either event in isolation.
-Finally, GDELT's \texttt{V2Tone} metric is rule-based and may not capture rhetorical nuance; tone results are treated as indicative throughout.
-
-\subsection{Data and Code Availability}
-All BigQuery extraction queries, multilingual frame dictionaries, Python frame-assignment pipeline, and analysis notebooks are publicly available at \url{https://github.com/brewcoua/GenAI-GDELT}.
-The article-level framing dataset (1,116,091 articles with binary keyword flags and LaBSE embedding scores for all six frames) is published on HuggingFace at \url{https://huggingface.co/datasets/brewcoua/genai-gdelt-framing}.
-A companion website with figures and citation is available at \url{https://brewcoua.github.io/GenAI-GDELT}.
+Three additional recent events (DeepSeek-R1 and the Trump AI executive order in January 2025, EU AI Act prohibited-practices enforcement in February 2025, and the Claude Fable~5 release with US AI export controls in June 2026) yield comparison windows of 8--13~days and are noted in the discussion as indicative rather than conclusive. These three, together with the eight analysed milestones, make up the eleven markers drawn in Figures~\ref{fig:vol_frames} and~\ref{fig:regional}.
 
 \section{Analysis and Results}
 
 \subsection{Coverage Overview}
 
-Monthly volume grew from 14,908--17,788 articles in late 2022 to 20,680--28,582 articles by spring 2026, an approximately 59\% increase (1.59$\times$) over the study window.
+Monthly volume rose over the study window from a late-2022 range of 14,908--17,788 articles to a spring-2026 range of 20,680--28,582: comparing the mean of the first three months (16,139) with the last three (25,610) gives an increase of about 59\% (1.59$\times$).
 The governance filter is inclusive by design: 50.7\% of all GDELT-indexed GenAI articles carry a governance signal, leaving 49.3\% as general-interest GenAI coverage excluded from the corpus.
 Of the 1,116,091 retained articles, 40.8\% (455,349) are confirmed in at least one frame; the remaining 59.2\% contribute to volume counts but are not assigned a frame.
 
@@ -366,15 +350,16 @@ From late 2022 to mid-2023, Regulation \& Governance dominates; Innovation \& Op
 From 2024 onward, Risk \& Safety framing rises steadily, reaching its corpus-period maximum of 20.3\% in isolated months, while Innovation \& Opportunity settles below 10\% and remains there.
 This reorientation from opportunity to risk framing mirrors the real-world trajectory of frontier AI debate: the post-ChatGPT enthusiasm giving way to expert concern about model capabilities and safety.
 
-As an independent check, GDELT's automated tone score tracks the frame labels: Innovation articles are the only positively-valenced group (mean V2Tone $+1.11$), while every governance-adjacent frame is negative and Risk \& Safety is the most critical ($-2.30$). Read with the usual caution about a rule-based metric, this suggests governance coverage carries a critical register~\cite{fast_long-term_2017}.
+As an independent check, GDELT's automated tone score tracks the frame labels: Innovation articles are the only positively-valenced group (mean V2Tone $+1.11$), while every governance-adjacent frame is negative and Risk \& Safety is the most critical ($-2.30$). Read with the usual caution about a rule-based metric, this suggests governance coverage carries a critical register.
 
 \subsection{RQ3: Governance Milestones and Framing Shifts}
+\label{sec:rq3}
 
 Table~\ref{tab:eventstudy} reports the change in confirmed Regulation and Risk frame prevalence across the adaptive symmetric window for each milestone.
 For the ChatGPT launch, the 29-day window uses the first 29 days of corpus data as the pre-period (November 1--29, 2022), before the public release on November 30.
 
 \begin{table}[!t]
-\caption{Event-study results: change in confirmed frame prevalence (adaptive symmetric window, in percentage points; see §3.4). Positive = frame more prevalent post-milestone. $^{*}p<0.05$, $^{**}p<0.01$ from a 10{,}000-iteration label-permutation test within each window; unmarked deltas are not distinguishable from chance reassignment. Note that significance reflects the large per-window sample: most deltas remain within the range of ordinary temporal variation (see §4.4).}
+\caption{Event-study results: change in confirmed frame prevalence (adaptive symmetric window, in percentage points; see \S\ref{sec:eventdesign}). Positive = frame more prevalent post-milestone. $^{*}p<0.05$, $^{**}p<0.01$ from a 10{,}000-iteration label-permutation test within each window; unmarked deltas are not distinguishable from chance reassignment. Note that significance reflects the large per-window sample: most deltas remain within the range of ordinary temporal variation.}
 \label{tab:eventstudy}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
@@ -398,18 +383,15 @@ The results reveal a selective and asymmetric pattern, though the magnitudes are
 The permutation test confirms that most deltas are not sampling artefacts (Table~\ref{tab:eventstudy}), but because each window holds thousands of articles, even sub-point shifts clear significance; the more demanding comparison is against background volatility.
 At random non-milestone dates, same-length windows already swing by several percentage points at the 95\% level (up to roughly $\pm5$--$8$~pp for the shorter windows), and every individual milestone delta falls within this band of ordinary period-to-period variation.
 We therefore read the event study as evidence of a relative pattern across milestones rather than proof that any single milestone reshaped coverage.
-The Bletchley Summit ($+1.1$~pp regulation) coincides with a sharp \emph{drop} in risk framing ($-4.9$~pp). One reading is that the summit's coverage recast existential-risk talk as governance-response language, with policy vocabulary crowding out alarm.
-The EU AI Act political agreement, by contrast, lifted \emph{both} frames together ($+2.5$~pp regulation, $+3.1$~pp risk), matching coverage that framed legislative finalization as both a governance achievement and a reminder of continuing hazard.
-The Pause AI open letter coincides with a Risk rise ($+1.5$~pp) and almost no Regulation change ($+0.4$~pp), which fits the idea that civil-society alarm signals raise risk framing without prompting governance-solution coverage.
-The Seoul Summit ($-0.2$~pp, $-0.8$~pp) and OpenAI o1 release ($-1.4$~pp, $-0.1$~pp) produce near-zero deltas (the Seoul regulation and o1 risk changes are not statistically significant), pointing to lower political salience: the Seoul Summit was widely seen as reaffirming rather than advancing the Bletchley agenda, and a capability-oriented product release does not carry the legislative framing cues that drive governance discourse.
-The EU AI Act's entry into force yields modest positive deltas ($+1.5$~pp regulation, $+3.0$~pp risk), and GPAI obligations produce a small negative regulation delta ($-1.9$~pp) with no significant risk movement ($-0.3$~pp), suggesting that by August 2025 the EU policy frame had become routine background.
+The largest movements cluster around contested or coordinated events. The Bletchley Summit pairs a small regulation rise ($+1.1$~pp) with a sharp \emph{drop} in risk framing ($-4.9$~pp); the EU AI Act political agreement lifts \emph{both} frames together ($+2.5$~pp regulation, $+3.1$~pp risk); and the Pause AI open letter raises risk ($+1.5$~pp) with almost no regulation change ($+0.4$~pp).
+By contrast, the Seoul Summit ($-0.2$, $-0.8$~pp) and the OpenAI o1 release ($-1.4$, $-0.1$~pp) produce near-zero deltas, several of them not significant, while the EU AI Act's entry into force ($+1.5$, $+3.0$~pp) and the GPAI obligations ($-1.9$~pp regulation, $-0.3$~pp risk) yield only modest or negative shifts.
 Three additional events have comparison windows too short for reliable inference: DeepSeek-R1 combined with the Trump AI executive order (13~days), EU Article~5 prohibited-practices enforcement (13~days), and the Claude Fable~5 release with US export controls (8~days). All three coincide with large positive regulation spikes visible in Figure~\ref{fig:vol_frames}, but the window lengths preclude causal attribution; they are noted as indicative of dominant direction only.
 Overall, only politically contested, novel, or internationally coordinated milestones generate discernible framing shifts; routine administrative deadlines do not.
 
 \subsubsection{Regional variation}
 Confirmed frame prevalence differs meaningfully across geographies (Figure~\ref{fig:regional}).
-US outlets show the highest regulation prevalence (22.9\%) and innovation prevalence (10.1\%); this fits a period of contentious Congressional AI debates and the Biden executive order, both of which generated dense regulatory vocabulary.
-EU outlets (English-language sources with EU-registered domains in GDELT; EU-language media is likely underrepresented) show relatively higher risk/safety prevalence (8.8\%) for their regulation share (13.5\%), which echoes Nguyen and Wischnewski's~\cite{nguyen_generative_2026} finding that European outlets are more governance-oriented in tone.
+US outlets show the highest regulation prevalence (22.9\%) and innovation prevalence (10.1\%), with risk framing at 13.4\%; this fits a period of contentious Congressional AI debates and the Biden executive order, both of which generated dense regulatory vocabulary.
+EU outlets (English-language sources with EU-registered domains in GDELT; EU-language media is likely underrepresented) carry proportionally more risk framing for their regulation share (8.8\% risk against 13.5\% regulation, a ratio of 0.65 versus 0.59 for the US), which echoes Nguyen and Wischnewski's~\cite{nguyen_generative_2026} finding that European outlets are more governance-oriented in tone.
 UK outlets sit between the two (16.8\% regulation, 13.9\% risk), reflecting both proximity to EU policy and high coverage of the Bletchley Summit.
 
 The temporal evolution of these regional differences is visible in Figure~\ref{fig:regional}.
@@ -429,10 +411,10 @@ Risk framing in the UK tracks the US closely through 2024 before converging towa
 Our results show how generative AI governance discourse shifted alongside the real-world trajectory of AI policy.
 The post-ChatGPT window (late 2022 to mid-2023) was dominated by regulatory vocabulary as legislators worldwide drafted responses to a novel and rapidly diffusing technology, with an innovation-framing peak in February~2023 reflecting the initial wave of enthusiasm.
 The 2023 Bletchley period brought a secondary innovation uptick alongside sustained regulation coverage, reflecting the simultaneous excitement around frontier models and the urgency of international coordination.
-From 2024 onward, Risk \& Safety framing grows relative to innovation, and the discourse shifts to a more sober, geopolitically charged tone, accelerating through 2025 with the DeepSeek-R1 and Trump executive-order period.
+From 2024 onward, Risk \& Safety framing grows relative to innovation, and the discourse shifts to a more sober, security-conscious tone, accelerating through 2025 with the DeepSeek-R1 and Trump executive-order period.
 This pattern aligns with Taeihagh's~\cite{taeihagh_governance_2025} taxonomy of governance challenges: concerns about accountability, safety, and power asymmetries become more salient as capabilities advance past the initial novelty phase.
 
-The event-study results offer a qualification to the volume-based narrative, with the caveat that the shifts are modest relative to background variation (§4.4).
+The event-study results offer a qualification to the volume-based narrative, with the caveat that the shifts are modest relative to background variation (\S\ref{sec:rq3}).
 Read as a relative pattern across milestones, framing appears to track political contestation and symbolic mobilization more than the legal calendar.
 The Bletchley Summit nudges regulation framing upward ($+1.1$~pp) while risk framing drops ($-4.9$~pp), as if the event's diplomatic framing, centered on governance solutions and coordination, pushed alarm-oriented coverage aside.
 This contrasts with the EU AI Act political agreement, where both regulation and risk framing rose together ($+2.5$ and $+3.1$~pp respectively): legislative finalization generated both policy-process coverage and renewed attention to the hazards the law was designed to address.
@@ -442,15 +424,23 @@ This pattern is in line with intermittent agenda-setting theory~\cite{lazer_comp
 
 The 2025 events extend this pattern to a new phase of the governance lifecycle.
 Although the comparison windows for the DeepSeek-R1 / Trump AI executive order period and the EU Article~5 prohibited-practices enforcement are too short for robust inference, both show large positive regulation spikes visible in Figure~\ref{fig:vol_frames} as the elevated Regulation \& Governance plateau from January 2025 onward.
-This suggests that the post-2024 governance discourse became more contentious, more geopolitically charged, and more densely regulation-framed, driven by the convergence of frontier capability announcements, US executive action, and EU enforcement milestones.
+This suggests that the post-2024 governance discourse grew both more contentious and more densely regulation-framed, driven by the convergence of frontier capability announcements, US executive action, and EU enforcement milestones.
 
 The regional picture adds another piece.
 US outlets are at once the most regulation-intensive and the most innovation-positive, which fits a media ecosystem covering both a contentious bipartisan AI policy debate and the world's largest AI industry.
 EU outlets combine lower innovation framing with proportionally higher risk framing for their level of regulation coverage, echoing prior evidence that European media frames AI more cautiously~\cite{nguyen_generative_2026} and reflecting the EU AI Act's foundational premise that AI poses fundamental rights risks requiring precautionary governance~\cite{gstrein_general-purpose_2024}.
 
-Two methodological caveats deserve repeating.
-First, even after embedding confirmation, the Regulation \& Governance frame stays inflated by the vocabulary it shares with the corpus filter; cross-frame comparisons measure relative emphasis, not absolute salience.
-Second, our two-stage frame assignment trades recall for precision. The 59.2\% of unframed articles are mostly coverage that our closed vocabulary does not match, lexically or semantically, rather than noise, which is a limitation of any closed-vocabulary approach.
+\section{Limitations}
+\label{sec:limitations}
+
+A few limitations should be kept in mind.
+Although the frame dictionaries cover nine languages, GDELT's indexing over-represents English-language sources; the multilingual terms extend coverage in principle, but in practice the corpus skews Anglophone, limiting generalizability to non-Anglophone media ecosystems.
+This also confounds the regional comparison (\S\ref{sec:rq3}): because our EU subset is restricted to English-language sources with EU-registered domains, the US--EU framing gap may partly reflect GDELT's language and sourcing composition rather than genuine editorial differences.
+Frame assignment relies on \texttt{AllNames} and \texttt{Quotations} rather than full article prose: \texttt{AllNames} fires on named entities throughout the article and \texttt{Quotations} captures direct source speech from anywhere in the body, so coverage is article-wide rather than headline-only, but continuous journalistic text between named entities and quotes is not analysed; subtler framing that is neither entity-driven nor quote-driven may be missed.
+The two-stage assignment also trades recall for precision: the 59.2\% of articles confirmed in no frame are mostly coverage our closed vocabulary does not match, lexically or semantically, rather than noise, as in any closed-vocabulary approach.
+The vocabulary overlap between the corpus governance filter and the Regulation frame inflates that frame's base rate, although the robustness check in \S\ref{sec:taxonomy} leaves its rank and the milestone deltas essentially unchanged; cross-frame comparisons should be read as relative emphasis, not absolute salience.
+The event-study deltas, while mostly significant against sampling noise, are modest relative to background temporal volatility (\S\ref{sec:rq3}); milestone attributions are therefore suggestive rather than causal, and the temporal proximity of the Bletchley Summit and the EU AI Act agreement further complicates attributing shifts to either event in isolation.
+Finally, GDELT's \texttt{V2Tone} metric is rule-based and may not capture rhetorical nuance; tone results are treated as indicative throughout.
 A human-annotated gold standard (e.g., via LLM-based labeling as in Gilardi et al.~\cite{gilardi_chatgpt_2023} and Ziems et al.~\cite{ziems_can_2024}) would allow quantitative error estimation and remains the most credible next validation step.
 
 \section{Conclusion}
@@ -465,13 +455,16 @@ On the same logic, future regulatory milestones will likely surface in the news 
 
 Future work should annotate a stratified sample with LLM-based labels to estimate the classifier's precision and recall~\cite{gilardi_chatgpt_2023,ziems_can_2024}; extend the lexicon dynamically via methods such as LGDE~\cite{schindler_lgde_2025}; and track governance coverage beyond mid-2026.
 
+\section{Data and Code Availability}
+All BigQuery extraction queries, multilingual frame dictionaries, the Python frame-assignment pipeline, and the analysis notebooks are available at \url{https://github.com/brewcoua/GenAI-GDELT}.
+The article-level framing dataset (1,116,091 articles with binary keyword flags and LaBSE embedding scores for all six frames) is published on HuggingFace at \url{https://huggingface.co/datasets/brewcoua/genai-gdelt-framing}, and a companion website with figures and citation at \url{https://brewcoua.github.io/GenAI-GDELT}.
 
 \begin{acks}
-During the preparation of this work, the author used \textbf{Writefull}
-(Overleaf integration) in order to: \textbf{Grammar and spelling check},
-\textbf{Paraphrase and reword}, \textbf{Improve writing style}.
-After using these tools, the author reviewed and edited the content as
-needed and takes full responsibility for the publication's content.
+During the preparation of this work, the authors used Writefull
+(Overleaf integration) for grammar and spelling checks, paraphrasing,
+and writing-style improvements.
+After using these tools, the authors reviewed and edited the content as
+needed and take full responsibility for the publication's content.
 \end{acks}
 
 %%
