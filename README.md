@@ -2,12 +2,17 @@
 
 Framing analysis of generative AI governance in online news, using the GDELT 2.0 Global Knowledge Graph (2022–2026).
 
-We examine how news media framed the governance of generative AI across ~1.1 million articles spanning November 2022 (ChatGPT launch) through June 2026, using a combination of dictionary-based frame detection and ML embedding scoring.
+We examine how news media framed the governance of generative AI across ~1.1 million articles spanning November 2022 (ChatGPT launch) through June 2026. Frames are assigned with a two-stage procedure: multilingual keyword matching, then confirmation with a LaBSE sentence-embedding model. A frame counts for an article only when both the keyword flag fires *and* the embedding score sits on the positive side of the frame axis.
 
 **Research questions**
 - **RQ1** How did coverage volume evolve over time?
 - **RQ2** Which governance frames dominated, and how did their share shift?
 - **RQ3** Did major policy milestones (EU AI Act, Bletchley Summit, …) trigger detectable frame shifts?
+
+**Key findings**
+- Regulation & Governance is the most prevalent frame throughout (16.6% of articles, and still first at 13.9% after removing the vocabulary it shares with the corpus filter). Risk & Safety overtakes Innovation & Opportunity from 2024 onward.
+- The discourse shifts from innovation- and market-oriented framing (2022–2023) toward risk- and regulation-dominated framing (2024–2026), with a geopolitically charged acceleration in 2025.
+- Milestone framing shifts are statistically detectable but modest: a window-matched placebo shows every milestone delta falls within ordinary period-to-period variation, so the event study supports a relative pattern across milestones rather than strong per-event causal effects.
 
 ---
 
@@ -21,11 +26,14 @@ We examine how news media framed the governance of generative AI across ~1.1 mil
 │   └── lexicons/         # YAML keyword dictionaries and milestones (in git)
 ├── notebooks/
 │   ├── 01_pipeline.ipynb       # frame detection → aggregated parquets
-│   ├── 02_ml_framing.ipynb     # sentence-embedding frame scoring
+│   ├── 02_ml_framing.ipynb     # LaBSE sentence-embedding frame scoring
+│   ├── 03_analysis.ipynb       # event study, significance, regional analysis
 │   └── 03_paper_figures.ipynb  # all paper figures
 ├── scripts/
 │   ├── download_data.py        # fetch large files from Google Drive
-│   └── preprocess_raw.py       # CSV → slim parquet (chunked, memory-safe)
+│   ├── preprocess_raw.py       # CSV → slim parquet (chunked, memory-safe)
+│   ├── robustness_checks.py    # event-study significance + frame-overlap robustness
+│   └── build_hf_dataset.py     # export article-level framing dataset for HuggingFace
 ├── src/                        # importable modules (dictionaries, preprocessing, …)
 ├── queries/                    # BigQuery SQL (auto-generated from lexicons)
 ├── paper/                      # LaTeX source and figures
@@ -153,7 +161,7 @@ Six governance frames are detected via keyword matching in `data/lexicons/frames
 | `economic_competition_labour` | Jobs, market concentration, automation |
 | `misinformation_integrity` | Deepfakes, false content, trust erosion |
 
-Keyword dictionaries are multilingual (EN, FR, DE, ES, IT, NL, PL, PT). Edit `data/lexicons/*.yaml` to change frame definitions; run `python -m src.build_query --write` afterwards to keep the SQL in sync.
+Keyword dictionaries are multilingual across nine languages (EN, FR, DE, ES, IT, NL, PL, PT, RO). Edit `data/lexicons/*.yaml` to change frame definitions; run `python -m src.build_query --write` afterwards to keep the SQL in sync.
 
 ---
 
@@ -168,12 +176,28 @@ Keyword dictionaries are multilingual (EN, FR, DE, ES, IT, NL, PL, PT). Edit `da
 
 ## Milestones tracked (RQ3 event studies)
 
+The eleven milestones are defined in `data/lexicons/milestones.yaml`.
+
 | Date | Event |
 |------|-------|
 | 2022-11-30 | ChatGPT public launch |
-| 2023-03-22 | Open Letter to Pause AI |
+| 2023-03-22 | "Pause Giant AI Experiments" open letter (Future of Life Institute) |
 | 2023-11-01 | Bletchley Park AI Safety Summit |
 | 2023-12-08 | EU AI Act political agreement |
-| 2024-05-21 | Seoul AI Summit |
-| 2024-08-01 | EU AI Act entry into force |
-| 2025-02-02 | GPAI obligations begin |
+| 2024-05-21 | Seoul AI Safety Summit |
+| 2024-08-01 | EU AI Act enters into force |
+| 2024-09-12 | OpenAI o1 public preview (first production reasoning model) |
+| 2025-01-20 | DeepSeek-R1 release + Trump revokes Biden AI EO 14110, signs EO 14179 \* |
+| 2025-02-02 | EU AI Act Article 5 prohibited practices enter into force \* |
+| 2025-08-02 | EU AI Act general-purpose AI (GPAI) model obligations apply |
+| 2026-06-09 | Claude Fable 5 release + US export-control suspension order \* |
+
+Each milestone uses an adaptive symmetric window bounded by neighbouring milestones (capped at 90 days). \* marks events with short comparison windows (8–13 days), reported as indicative only. Significance is assessed with a label-permutation test and a window-matched placebo (see `scripts/robustness_checks.py`).
+
+---
+
+## Data & code availability
+
+- **Article-level dataset** (1,116,091 articles with binary keyword flags and LaBSE embedding scores for all six frames): <https://huggingface.co/datasets/brewcoua/genai-gdelt-framing>
+- **Companion site** (figures and citation): <https://brewcoua.github.io/GenAI-GDELT>
+- **Paper:** LaTeX source and figures under `paper/`.
