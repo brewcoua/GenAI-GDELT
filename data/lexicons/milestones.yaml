@@ -27,6 +27,22 @@
   date: "2024-08-01"
   description: "EU AI Act enters into force"
 
+- name: openai_o1
+  date: "2024-09-12"
+  description: "OpenAI o1 ('Strawberry') public preview — first production reasoning model; triggered safety and governance debate about chain-of-thought AI"
+
+- name: deepseek_trump
+  date: "2025-01-20"
+  description: "DeepSeek-R1 release (open-source, matches o1 performance) + Trump revokes Biden AI EO 14110 and signs EO 14179 (deregulation) — same day"
+
+- name: eu_ai_prohibited
+  date: "2025-02-02"
+  description: "EU AI Act Article 5 prohibited AI practices enter into force — 8 categories banned across EU with fines up to €35M or 7% global turnover"
+
 - name: gpai_obligations
   date: "2025-08-02"
   description: "EU AI Act general-purpose AI model obligations become applicable"
+
+- name: claude_fable_us_ban
+  date: "2026-06-09"
+  description: "Anthropic Claude Fable 5 release (Jun 9) + US government export-control suspension order (Jun 12) — largest open model meets hard regulatory limit"
