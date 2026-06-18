@@ -168,7 +168,6 @@ MERGE_PLAN.md
 *.pdf
 !paper/paper.pdf
 *.bib
-*.tex
 ml_frame_scores_embedding_full.*
 
 # Heavy data (can be downloaded from drive)
