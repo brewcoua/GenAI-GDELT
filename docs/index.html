@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Longitudinal framing analysis of generative AI governance in 1.1 million online news articles (2022–2026) using GDELT 2.0.">
+  <title>Framing Generative AI Governance in Online News</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #1a1a2e;
+      --accent: #4a6fa5;
+      --light:  #e8f4f8;
+      --text:   #1f2937;
+      --muted:  #6b7280;
+      --border: #d1d5db;
+      --code-bg:#f3f4f6;
+      --max-w:  880px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text);
+      line-height: 1.65;
+      background: #fff;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--navy);
+      color: #fff;
+      padding: 3rem 1.5rem 2rem;
+      text-align: center;
+    }
+    header .venue-tag {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.7rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+    header h1 {
+      font-size: clamp(1.4rem, 3.5vw, 2.1rem);
+      font-weight: 700;
+      max-width: var(--max-w);
+      margin: 0 auto 0.6rem;
+      line-height: 1.25;
+    }
+    header .subtitle {
+      font-size: 1rem;
+      color: #a5b4cb;
+      margin-bottom: 1.2rem;
+    }
+    header .authors {
+      font-size: 0.95rem;
+      color: #c9d8e8;
+      margin-bottom: 1.6rem;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+    }
+    nav a {
+      color: #a5b4cb;
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 4px;
+      transition: background 0.15s, color 0.15s;
+    }
+    nav a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    nav span { color: #3d4f63; font-size: 0.85rem; padding: 0.3rem 0; }
+
+    /* ── Layout ── */
+    .container {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    section:last-child { border-bottom: none; }
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    h2::before {
+      content: "";
+      display: block;
+      width: 3px;
+      height: 1.2em;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* ── Abstract ── */
+    #abstract p {
+      margin-bottom: 0.9rem;
+      text-align: justify;
+    }
+    #abstract p:last-child { margin-bottom: 0; }
+
+    /* ── Key findings ── */
+    .finding-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    .card {
+      background: var(--light);
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+      padding: 1rem 1.1rem;
+    }
+    .card .card-num {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+    .card p {
+      font-size: 0.88rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .figures {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .fig-block { text-align: center; }
+    .fig-block img {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+    .fig-caption {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      text-align: left;
+    }
+
+    /* ── Data & Code ── */
+    .link-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .link-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 1rem 1.2rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .link-btn:hover { border-color: var(--accent); background: var(--light); }
+    .link-btn .icon { font-size: 1.4rem; }
+    .link-btn .lbl { font-size: 0.75rem; font-weight: 400; color: var(--muted); }
+    .dataset-note {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .dataset-note code {
+      background: var(--code-bg);
+      padding: 0.1em 0.4em;
+      border-radius: 3px;
+      font-size: 0.83rem;
+    }
+
+    /* ── Citation ── */
+    .citation-block {
+      position: relative;
+    }
+    .citation-block pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.1rem 1.2rem;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.25rem 0.65rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      color: var(--muted);
+      transition: background 0.15s;
+    }
+    .copy-btn:hover { background: var(--light); color: var(--text); }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--navy);
+      color: #6b85a0;
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.82rem;
+    }
+    footer a { color: #a5b4cb; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="venue-tag">Web Science &amp; Engineering · TU Delft · 2026</div>
+  <h1>Framing Generative AI Governance in Online News</h1>
+  <p class="subtitle">A Longitudinal Analysis of 1.1 Million Articles (2022–2026)</p>
+  <p class="authors">Brewen Couaran</p>
+  <nav>
+    <a href="#abstract">Abstract</a>
+    <span>·</span>
+    <a href="#findings">Findings</a>
+    <span>·</span>
+    <a href="#data">Data &amp; Code</a>
+    <span>·</span>
+    <a href="#citation">Citation</a>
+  </nav>
+</header>
+
+<main>
+
+  <section id="abstract">
+    <div class="container">
+      <h2>Abstract</h2>
+      <p>
+        The public release of ChatGPT in late 2022 rapidly transformed generative AI from a
+        technological novelty into a central governance concern, prompting legislative activity,
+        international summitry, and sustained public debate about regulation, safety, copyright,
+        misinformation, and accountability.
+        Online news plays a central role in shaping how these issues are publicly understood,
+        making web-based news infrastructure a critical object of Web Science inquiry.
+      </p>
+      <p>
+        This paper presents the first large-scale longitudinal framing analysis of generative AI
+        governance in online news. Drawing on 1,116,091 articles from the GDELT 2.0 Global
+        Knowledge Graph, spanning November 2022 to June 2026, we apply a six-category governance
+        frame taxonomy (Innovation &amp; Opportunity, Risk &amp; Safety, Regulation &amp; Governance,
+        Rights &amp; Privacy, Economic Competition &amp; Labour, and Misinformation &amp; Integrity)
+        via a two-stage procedure combining multilingual keyword matching and LaBSE
+        sentence-embedding confirmation.
+      </p>
+      <p>
+        We document a discourse arc from optimism to precaution: Innovation framing peaks in
+        February 2023 before retreating, while Risk &amp; Safety rises steadily from 2024 onward.
+        An event-study design across eight governance milestones reveals that media framing responds
+        selectively and asymmetrically to policy events: high-profile intergovernmental summits
+        suppress risk framing while amplifying governance vocabulary; civil-society alarm signals
+        amplify risk without triggering governance-response coverage; and routine administrative
+        deadlines produce no sustained framing shifts.
+        Regional analysis shows US outlets are simultaneously the most regulation-intensive and
+        innovation-positive, while EU outlets exhibit proportionally higher risk framing relative
+        to their regulation share.
+        These findings contribute to Web Science and computational social science by demonstrating
+        how web-based news infrastructures construct and transform public discourse around the
+        governance of emerging AI technologies.
+      </p>
+    </div>
+  </section>
+
+  <section id="findings">
+    <div class="container">
+      <h2>Key Findings</h2>
+      <div class="finding-cards">
+        <div class="card">
+          <div class="card-num">1.1M</div>
+          <p>News articles from 44 months (Nov 2022 – Jun 2026) across 100+ languages via GDELT 2.0,
+             with a 50.7% governance filter yielding the analysis corpus.</p>
+        </div>
+        <div class="card">
+          <div class="card-num">Feb 2023</div>
+          <p>Innovation &amp; Opportunity peaks at 13.1% — the apex of post-ChatGPT optimism —
+             before retreating as Risk &amp; Safety climbs to 20%+ by 2024.</p>
+        </div>
+        <div class="card">
+          <div class="card-num">Asymmetric</div>
+          <p>The Bletchley Summit suppressed risk framing (−4.9 pp) while the Pause AI letter
+             amplified it (+1.5 pp) without triggering governance-response coverage.</p>
+        </div>
+      </div>
+
+      <div class="figures">
+        <div class="fig-block">
+          <img src="figures/fig_1_volume_frames.png"
+               alt="Figure 1: Daily confirmed frame prevalence (stacked area) and total article volume over time">
+          <p class="fig-caption">
+            <strong>Figure 1.</strong> Daily confirmed frame prevalence (14-day rolling mean, stacked area)
+            and total articles per day. Regulation &amp; Governance dominates throughout; Risk &amp; Safety
+            rises sharply from 2024; Innovation &amp; Opportunity retreats after its February 2023 peak.
+            Vertical lines mark eight governance milestones.
+          </p>
+        </div>
+        <div class="fig-block">
+          <img src="figures/fig_2_regional_framing.png"
+               alt="Figure 2: Regional framing over time for US, EU, and UK outlets">
+          <p class="fig-caption">
+            <strong>Figure 2.</strong> Daily confirmed frame prevalence for US, EU, and UK outlets
+            (14-day rolling mean). US regulation framing diverges sharply upward from 2024; EU risk
+            framing tracks closely with the UK throughout the study period.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="data">
+    <div class="container">
+      <h2>Data &amp; Code</h2>
+      <div class="link-grid">
+        <a class="link-btn" href="https://github.com/brewcoua/GenAI-GDELT" target="_blank" rel="noopener">
+          <span class="icon">⌥</span>
+          <span>
+            <span style="display:block">GitHub Repository</span>
+            <span class="lbl">Code, lexicons, notebooks, paper LaTeX</span>
+          </span>
+        </a>
+        <a class="link-btn" href="https://huggingface.co/datasets/brewcoua/genai-gdelt-framing" target="_blank" rel="noopener">
+          <span class="icon">🤗</span>
+          <span>
+            <span style="display:block">HuggingFace Dataset</span>
+            <span class="lbl">1.1M articles with frame flags &amp; embeddings</span>
+          </span>
+        </a>
+      </div>
+      <p class="dataset-note">
+        The dataset has three configurations: <code>articles</code> (1,116,091 rows — document URL,
+        month, region, 6 keyword flags, 6 LaBSE embedding scores, dominant frame),
+        <code>event_studies</code> (22-row milestone summary), and <code>aggregates</code>
+        (monthly/regional/tone summaries). Load with
+        <code>datasets.load_dataset("brewcoua/genai-gdelt-framing", "articles")</code>.
+        Released under CC-BY 4.0.
+      </p>
+    </div>
+  </section>
+
+  <section id="citation">
+    <div class="container">
+      <h2>Citation</h2>
+      <div class="citation-block">
+        <pre id="bibtex">@inproceedings{couaran_framing_2026,
+  title     = {Framing Generative {AI} Governance in Online News:
+               A Longitudinal Analysis of 1.1 Million Articles (2022--2026)},
+  author    = {Couaran, Brewen},
+  year      = {2026},
+  url       = {https://github.com/brewcoua/GenAI-GDELT},
+}</pre>
+        <button class="copy-btn" onclick="
+          navigator.clipboard.writeText(document.getElementById('bibtex').textContent)
+            .then(() => { this.textContent = 'Copied!'; setTimeout(() => this.textContent = 'Copy BibTeX', 1800); });
+        ">Copy BibTeX</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>
+    Released under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC-BY 4.0</a>.
+    Source data: GDELT 2.0 (CC-BY). ·
+    <a href="https://github.com/brewcoua/GenAI-GDELT" target="_blank" rel="noopener">GitHub</a> ·
+    <a href="https://huggingface.co/datasets/brewcoua/genai-gdelt-framing" target="_blank" rel="noopener">HuggingFace</a>
+  </p>
+</footer>
+
+</body>
+</html>
